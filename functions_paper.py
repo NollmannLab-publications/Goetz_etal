@@ -72,7 +72,6 @@ def load_sc_data(dictData, datasetName):
     dictData[datasetName]["pwd_sc_raw"] = pwd_sc_raw
     
     # return dictData
-    # scHiMmatrices/wt_doc_hiRes_17RTs_nc14_pyHiM_v0.5_label:doc_action:all_SCmatrixCollated.npy
 
 
 
@@ -107,18 +106,9 @@ def load_sc_data_info(dictData, datasetName):
         if strEmb == None:
             strEmb = re.search(r"\d+(?=_Embryo)", dataPath)
         strEmb = strEmb.group()
-    
-        # sInfo = "Found {} sc in {}\nExperiment {}, Embryo {}"
-        # sInfo = sInfo.format(pwd.shape[2], dataPath, strExp, strEmb)
-        # print(sInfo)
-        
+     
         exp_emb.extend([[strExp, strEmb]] * pwd.shape[2])
-        
-        # if i == 0:
-        #     exp_emb = [[strExp, strEmb]] * pwd.shape[2]
-        # else:
-        #     exp_emb.extend([[strExp, strEmb]] * pwd.shape[2])
-    
+
     return exp_emb
 
     
@@ -232,9 +222,7 @@ def get_num_detected_barcodes(pwd_sc):
 
 def get_subrange(pwd_sc, xy_start=None, xy_stop=None, xy_step=None):
     # zero-based indices of the matrix
-    # xy_start = 0
-    # xy_stop = 45
-    # xy_step = 1
+
     
     if (xy_start is None):
         xy_start = 0
@@ -432,8 +420,7 @@ def fill_missing(PWD_sc, pwd_sc_full_data=None, minMissing=None, maxMissing=None
         mask = np.isnan(pwd_sc[:,:,iCell])
         xy = np.where(mask)
         pwd_sc[xy[0],xy[1],iCell] = pwd_sc_fill[mask]
-        # if iCell < 10:
-        #     print("filled in {} values".format(xy[0].shape))
+
     
     pwd_sc_lin = get_mat_linear(pwd_sc) # shape=(nCells,nPWD)
     
@@ -453,7 +440,6 @@ def fill_missing(PWD_sc, pwd_sc_full_data=None, minMissing=None, maxMissing=None
     keep2 = (missing_barcodes <= maxMissing)
     # sel = sel1 * sel2
     keep = keep1 * keep2 * keepPattern
-    # print(keepPattern)
     
     pwd_sc_lin = pwd_sc_lin[keep,:]
     missing_barcodes = missing_barcodes[keep]
@@ -577,7 +563,6 @@ def get_similarity_sc_distMap(PWD, minRatioSharedPWD=0.2, distNorm=False,
             mask = np.diag(np.repeat(True, PWD.shape[0]-i), k=-i)
             expected[mask] = e
         PWD = PWD - expected[:,:,None] #create empty 3rd dim for expected
-        # print(expected)
     elif (distNorm == "zscore"):
         avg = np.nanmean(PWD, axis=2)
         std = np.nanstd(PWD, axis=2)
@@ -599,7 +584,6 @@ def get_similarity_sc_distMap(PWD, minRatioSharedPWD=0.2, distNorm=False,
             PWD_lin[ii,:] = PWD[j,i,:]
             ii += 1
     
-    # r = np.full(numNuc*(numNuc-1)//2, np.NaN)
     simty = []; overlp = []; pair = []
     
     
@@ -610,10 +594,7 @@ def get_similarity_sc_distMap(PWD, minRatioSharedPWD=0.2, distNorm=False,
         
         # for j in range(i+1, PWD.shape[2]):
         for j in range(i+1, numNuc):
-            # ii += 1
-            # sc1 = PWD[:,:,i][mask]
-            
-            # sc2 = PWD[:,:,j][mask]
+
             sc2 = PWD_lin[:,j]
             sc2_isnan = np.isnan(sc2)
             
@@ -659,7 +640,6 @@ def get_similarity_sc_distMap(PWD, minRatioSharedPWD=0.2, distNorm=False,
                     
                     s_collected.append(s)
                 
-                # simty.append(np.mean(s_collected))
                 simty += s_collected
                 overlp.append(ratioSharedPWD)
                 pair.append("{}, {}".format(i, j))
@@ -726,7 +706,6 @@ def get_Rg_from_PWD(PWDmatrix, minFracNotNaN=0.8):
     # get the number of PWDs that are not NaN
     numPWDs = PWDmatrix.shape[0]*(PWDmatrix.shape[0]-1)/2
     numNotNan = np.sum(~np.isnan(PWDmatrix)) / 2 # default is to compute the sum of the flattened array
-    #print("numNotNaN", numNotNan)
     if (numNotNan/numPWDs < minFracNotNaN):
         return np.NaN
     
@@ -820,9 +799,6 @@ def prepare_UMAP(dictData, selRange, minmaxMiss, steps, dictUMAP, keyDict,
     dictUMAP[keyDict]["classNum"] = classNum
     dictUMAP[keyDict]["minmaxMiss"] = minmaxMiss
     dictUMAP[keyDict]["steps"] = steps
-    # dictUMAP[keyDict]["numMiss"] = numMiss
-    # dictUMAP[keyDict]["sel_UMAP_aux"] = sel_UMAP_aux
-    # dictUMAP[keyDict]["sel_UMAP_wt"] = sel_UMAP_wt
     dictUMAP[keyDict]["pwd_sc_lin_cat"] = pwd_sc_lin_cat
     dictUMAP[keyDict]["numMissing_cat"] = numMissing_cat
     
@@ -847,7 +823,7 @@ def run_UMAP(dictUMAP, keyDict, random_state, custom_params=None):
                               # canberra, braycurtis, haversine
                               # mahalanobis, wminkowski, seuclidean
                               # cosine, correlation
-    # p["random_state"] = 123456 # None, 42
+
     
     if custom_params is not None:
         for key in custom_params:
@@ -863,7 +839,6 @@ def run_UMAP(dictUMAP, keyDict, random_state, custom_params=None):
             random_state=random_state,
             verbose=False
             )
-    # embedding = reducer.fit_transform(pwd_sc_lin_cat)
     trans = reducer.fit(pwd_sc_lin_cat)
     embedding = trans.embedding_
     
@@ -934,8 +909,7 @@ def plot_representative_sc(datasetName, listShowSC, PWD_sc, pwd_KDE,
         # cmap = "PiYG"
         cmap = copy.copy(plt.get_cmap("PiYG")) # copy of cmap to supress warning
         cmap.set_bad(color=[0.8, 0.8, 0.8]) # set color of NaNs and other invalid values
-    # vmin, vmax = 0.3, 0.9 # in µm
-    # vmin_sc, vmax_sc = 0.0, 3.0 # in µm
+
     
     
     # make a copy of PWD_sc
@@ -973,12 +947,10 @@ def plot_representative_sc(datasetName, listShowSC, PWD_sc, pwd_KDE,
         plot = ax.matshow(pwd_KDE, cmap=cmap, vmin=vmin, vmax=vmax)
         cbar = plt.colorbar(plot, ax=ax, fraction=0.046, pad=0.04,
                             ticks=[vmin, vmax], orientation="horizontal")
-        # cbar.set_label("Distance (µm)")
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_title("ensemble")
         
-        # fig.tight_layout() # makes things worse
         
     else:
         # show all PWD maps that have most barcodes detected
@@ -998,15 +970,12 @@ def plot_representative_sc(datasetName, listShowSC, PWD_sc, pwd_KDE,
         for i, ax in enumerate(fig.axes):
             if (i==len(fig.axes)-1): # last subplot
                 cbar = plt.colorbar(plot, ax=ax, fraction=0.046, pad=0.04)
-                # cbar.set_label("Distance (µm)")
             if (i>=sum(sel)):
                 # break
                 ax.axis("off")
                 continue
             currNuc = idx_sel[i]
             plot = ax.matshow(pwd_sc[:,:,currNuc], cmap=cmap, vmin=vmin_sc, vmax=vmax_sc)
-            # cbar = plt.colorbar(plot, ax=ax, fraction=0.046, pad=0.04, ticks=[0, 1.5, 3])
-            # # cbar.set_label("Distance (µm)")
             ax.set_xticks([])
             ax.set_yticks([])
             
@@ -1140,7 +1109,6 @@ def get_pair_corr(PWD_sc, p_pc, doShuffle=True):
     
     # selet a subrange of barcodes
     pwd_sc, sSubR = get_subrange(pwd_sc)
-    # pwd_sc, sSubR = get_subrange(pwd_sc, xy_start=30, xy_stop=72, xy_step=1)
     
     # filter cells based on number of detected barcodes per cell
     sel = filter_by_detected_barcodes(pwd_sc, minDetections)
@@ -1305,8 +1273,6 @@ def plot_scatter_Rg(ax, dictRg, datasetName, param_Rg, color=None, cross=None):
     # get radius of gyration
     r_gyration = dictRg[datasetName]
     ax.scatter(r_gyration[:,0], r_gyration[:,1], s=10, color=color)
-    # ax.scatter(r_gyration[~sel,0], r_gyration[~sel,1], s=2, color=[0.8, 0.8, 0.8])
-    # ax.plot([0,1], [0,1], "r-")
     
     # plot horizontal and vertical line through center
     if cross is not None:
@@ -1358,7 +1324,6 @@ def plot_scatter_UMAP(dictUMAP_data, cmap, ax=None, hideTicks=False):
         classes = dictUMAP_data["classes_2"]
     
     if ax is None:
-        # fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 6), dpi=150) # default (6.4, 4.8), 72dpi
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 10), dpi=150) # default (6.4, 4.8), 72dpi
         fig.subplots_adjust(right=0.85) # make some space on the right for the cbar label
                                         # keep the same as for Fig. 2E

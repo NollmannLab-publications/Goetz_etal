@@ -28,31 +28,6 @@ from functions_paper import (createDir, get_sc_pwd, shuffleMatrix2,
 
 
 
-
-# get paths from folder2Load
-# in /buildsPWDmatrix, look for buildsPWDmatrix_3D_*.ecsv
-# for each ecsv:
-#     get ROI and order from filename
-#     get number of sc from len(SCdistanceTable)
-#     np array index is order, cell contain number of sc
-
-# build array with assignment sc in buildsPWDmatrix_3D_HiMscMatrix.npy to ROI
-
-# for each ecsv:
-#     get ROI and order from filename
-#     expand ROI to 3 digits
-#     with this, load dapi mask from /segmentedObjects/scan_*_DAPI_001_ROI_converted_decon_ch00_Masks.npy
-#         there should only be one file with this filename
-#     with this, load doc mask from /segmentedObjects/scan_*_DAPI_001_ROI_converted_decon_ch01_2d_registered_SNDmask_doc.npy
-#         there should only be one file with this filename
-#     load /buildsPWDmatrix/buildsPWDmatrix_3D_HiMscMatrix.npy
-#         if more than 1 ROI in folder, this is concatenated in "order"
-#         get selection from assignment constructed above
-#     load SCdistanceTable and get "CellID #"
-
-
-
-
 #%% SETTINGS
 
 plt.rcParams.update({"font.size": 20})
@@ -104,7 +79,6 @@ def get_ROI(dictData, datasetName, numFolder, numROI):
         dictEmbryo = json.load(json_file)
     
     keyDatasetName = list(dictEmbryo.keys())[0]
-    # print("Dataset: {}. Loading {}D data".format(keyDatasetName, nDims))
     
     listDataPaths = dictEmbryo[keyDatasetName]["Folders"]
     
@@ -130,8 +104,7 @@ def get_ROI(dictData, datasetName, numFolder, numROI):
         # print(strOrder, strROI)
         listOrderROI.append([int(strOrder), int(strROI), numNuclei])
     
-    # print(listOrderROI)
-    
+  
     # create an array assigning order -> ROI
     arrOrderROI = np.full((len(listOrderROI),2), np.NaN)
     for i in range(len(listOrderROI)):
@@ -156,7 +129,6 @@ def get_ROI(dictData, datasetName, numFolder, numROI):
     for i in range(len(listOrderROI)):
         listROI += [arrOrderROI[i,0]]*int(arrOrderROI[i,1])
     arrROI = np.array(listROI)
-    # print(arrROI)
     
     # get ROI specified in function arguments, load DAPI mask, SND mask
     if (numROI > len(ecsv)-1):
@@ -215,20 +187,10 @@ def get_ROI(dictData, datasetName, numFolder, numROI):
 
 
 
-
-
 #%% load masks and sc PWD maps for this ROI, plot
 
 # datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
 datasetName = "doc_wt_nc14_hiRes_17_3D"
-
-
-# "nice" ROIs loRes:
-# 0, 0
-# 8, 0 (but low number of detected barcodes)
-
-# "nice" pattern hiRes
-# 3,0; 3,1
 
 
 numEmb, numROI = 3, 0 # these are list indices
@@ -269,15 +231,6 @@ for m in np.unique(mask_DAPI):
     mask_er = erosion(mask, square(7))
     mask_DAPI_er[mask_er] = m
 
-# from IPython import get_ipython
-# get_ipython().run_line_magic('matplotlib', 'qt')
-# # get_ipython().run_line_magic('matplotlib', 'inline')
-# fig, axs = plt.subplots(nrows=1, ncols=2, dpi=72) # default 72dpi
-
-# ax = axs[0]
-# ax.matshow(mask_DAPI, cmap=lbl_cmap)
-# ax = axs[1]
-# ax.matshow(mask_DAPI_er, cmap=lbl_cmap)
 
 
 
@@ -359,86 +312,6 @@ ax.set_title("numEmb {}, numROI {}".format(numEmb, numROI))
 
 
 
-
-
-
-# %% colorcode cells acc to Rg (raw data without filling in missing PWD)
-# not enough nuclei with Rg
-
-# cutoff = 1.0 # in µm
-# minFracNotNaN = 0.25 # half of barcodes missing -> only 1/4 of PWDs in map
-# if "_hiRes_" in datasetName:
-#     rangeMin = 0
-#     rangeMax = 18
-# else:
-#     rangeMin = 12
-#     rangeMax = 20
-
-
-# # get Rg
-# r_gyration = np.full(pwd_sc_ROI.shape[2], np.NaN)
-
-# pwd_sc_clipped = pwd_sc_ROI.copy()
-# pwd_sc_clipped[pwd_sc_clipped>cutoff] = np.NaN
-# pwd_sc_clipped = pwd_sc_clipped[rangeMin:rangeMax,rangeMin:rangeMax,:]
-
-
-# for i in range(pwd_sc_clipped.shape[2]):
-#     r_gyration[i] = get_Rg_from_PWD(pwd_sc_clipped[:,:,i], minFracNotNaN=minFracNotNaN)
-
-# print(sum(~np.isnan(r_gyration)), "out of", len(r_gyration))
-
-
-# # # keep track which sc has a Rg calculated
-# # sc_ROI_idx = np.arange(pwd_sc_ROI.shape[2])
-# # sc_ROI_idx = sc_ROI_idx[~np.isnan(r_gyration)]
-# # cellID_ROI_keep = cellID_ROI[sc_ROI_idx]
-
-
-# # normalize Rg to [0,1] for plotting
-# minRg = np.nanmin(r_gyration)
-# maxRg = np.nanmax(r_gyration)
-
-# Rg_norm = (r_gyration - minRg) / (maxRg - minRg)
-
-
-# # plot
-# imgSize = mask_DAPI.shape
-# mask_DAPI_Rg = np.ones((imgSize[0], imgSize[1], 4)) #RGBA array (rgb + alpha)
-
-# cmap = copy.copy(plt.get_cmap("coolwarm")) # copy of cmap to supress warning
-# # now cmap(float) with float in [0, 1] returns a color
-
-
-
-# # mask_DAPI_Rg[mask_DAPI_SND==2,:] = [1, 0, 0] # ON cells
-# # mask_DAPI_Rg[mask_DAPI_SND==1,:] = [0.5, 0.5, 0.5] # OFF cells
-
-# mask_DAPI_Rg[mask_DAPI_SND>0,:] = [0.5, 0.5, 0.5, 1.0] # all nuclei are grey
-
-# for i, cellID in enumerate(cellID_ROI):
-#     if np.isnan(Rg_norm[i]):
-#         continue
-    
-#     mask = (mask_DAPI_er == cellID)
-    
-#     # mask_DAPI_Rg[mask,:] = [1, 0.65, 0.0, 1.0] # orange
-#     mask_DAPI_Rg[mask,:] = cmap(Rg_norm[i])
-
-
-# fig, axs = plt.subplots(nrows=1, ncols=1, dpi=150) # default 72dpi
-# ax = axs
-# ax.matshow(mask_DAPI_Rg)
-
-# ax.set_title("numEmb {}, numROI {}".format(numEmb, numROI))
-
-
-
-
-
-
-
-
 # %% colorcode cells acc to Rg (filling in NaNs)
 
 minMiss, maxMiss = 0, 8
@@ -484,11 +357,6 @@ for i in range(pwd_sc_clipped.shape[2]):
 print(sum(~np.isnan(r_gyration)), "out of", len(r_gyration))
 
 
-# keep track which sc has a Rg calculated
-# sc_ROI_idx = np.arange(pwd_sc_ROI.shape[2])
-# sc_ROI_idx = sc_ROI_idx[keep]
-# # sc_ROI_idx = sc_ROI_idx[~np.isnan(r_gyration)]
-# cellID_ROI_keep = cellID_ROI[sc_ROI_idx]
 cellID_ROI_keep = cellID_ROI[keep]
 
 
@@ -554,16 +422,11 @@ createDir(pathFigDir, 0o755)
 fig.savefig(fn+".svg")
 
 
-
-
-
 #%%
 
 basePath = "/mnt/tronador/Sergio/RAMM_experiments/Experiment_1/2019_10_30/deconvolved_DAPI/005_Embryo/"
 
 # folder = "zProject"
-# fName = "scan_002_DAPI_011_ROI_converted_decon_ch01_2d.npy"
-
 folder = "alignImages"
 fName = "scan_002_DAPI_011_ROI_converted_decon_ch01_2d_registered.npy"
 
@@ -574,9 +437,6 @@ fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(4, 5), dpi=300) # default (6.
 
 ax = axs
 plot = ax.matshow(img_RNA_2D, cmap="gray_r", clim=(5e3, 100e3))
-# cbar = plt.colorbar(plot, ax=ax, fraction=0.046, pad=0.04)#, ticks=[1, 1.66])
-# # cbar.set_label("Rg (µm)")
-# # cbar.ax.set_yticklabels(["OFF", "ON"])
 
 ax.set_title("numEmb {}, numROI {}".format(numEmb, numROI), fontsize=12)
 
@@ -606,25 +466,6 @@ fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(4, 5), dpi=300) # default (6.
 
 ax = axs
 plot = ax.matshow(img_RNA_2D_clean, cmap="gray_r", clim=(00, 4e3))
-# cbar = plt.colorbar(plot, ax=ax, fraction=0.046, pad=0.04)#, ticks=[1, 1.66])
-# # cbar.set_label("Rg (µm)")
-# # cbar.ax.set_yticklabels(["OFF", "ON"])
-
-# ax.set_title("numEmb {}, numROI {}".format(numEmb, numROI), fontsize=12)
-
-
-# # ax.set_xlim(100,1110)
-# offset_x = -75
-# offset_y = 5
-# ax.set_xlim(100+offset_x,1110+offset_x)
-# ax.set_ylim(100+offset_y,1900+offset_y)
-
-# ax.set_xticks([])
-# ax.set_yticks([])
-
-
-# ax.set_title("offset_x {}, offset_y{}".format(offset_x, offset_y), fontsize=12)
-
 
 # full image
 ax.invert_yaxis()

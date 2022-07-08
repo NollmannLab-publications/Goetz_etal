@@ -8,9 +8,6 @@ Created on Mon Jun 21 19:33:34 2021
 
 
 """
-aggregated data can be found here: /mnt/grey/DATA/users/MarkusG/aggregated_analysis/
-
-
 doc data
 ========
 pre-processing that was done:
@@ -27,15 +24,6 @@ Bintu data
 downloaded the repo https://github.com/BogdanBintu/ChromatinImaging
 
 """
-
-
-
-
-#%% TODOs
-
-
-
-
 
 #%% IMPORTS
 
@@ -97,30 +85,11 @@ PDFpath = "./PDFs"
 createDir(PDFpath, 0o755)
 
 
-
-
-
 #%% COLORS, FONTS
-
-# the idea is to produce figures that are 3x as large as in the final version
-# like this, the boxing black lines don't get too thick
-# this also means the font should be 20pt, which gives 10pt at final size
-
-
-# matplotlib 1st standard color ("C0") [0.12156863, 0.46666667, 0.70588235]
-# matplotlib 2nd standard color ("C1") [1.00000000, 0.49803921, 0.05490196]
-
-# # to get colors of cmap "tab10"
-# from matplotlib.colors import ListedColormap #, LinearSegmentedColormap
-# tab10 = plt.get_cmap("tab10", 10)
-# # cmap = ListedColormap([tab10(1), tab10(2)])
-# colors = [tab10(i) for i in range(10)]
-
 
 # cm_map = "PiYG"
 cm_map = copy.copy(plt.get_cmap("PiYG")) # copy of cmap to supress warning
 cm_map.set_bad(color=[0.8, 0.8, 0.8]) # set color of NaNs and other invalid values
-
 
 myColors = [
     (1.00, 0.50, 0.05, 1.0), # orange, rgb 255 128 13, hex #ff800d
@@ -129,12 +98,6 @@ myColors = [
     (0.25, 0.25, 0.75, 1.0)  # blue, rgb 64, 64, 191, hex #4040bf
     ]
 
-
-# plt.rcParams.update({"font.size": 20})
-# plt.rcParams.update({"axes.titlesize": 20})
-# plt.rcParams.update({"svg.fonttype" = "none"})
-
-
 plt.rcParams.update({
     "font.size": 20,
     "axes.titlesize": 20,
@@ -142,12 +105,7 @@ plt.rcParams.update({
     })
 
 
-
-
-
 #%% LOAD DATA SHORTCUT
-
-#TODO: fix for production
 
 
 import glob
@@ -162,7 +120,6 @@ if cwd != script_path:
     os.chdir(script_path)
 
 if "dictData" not in locals():
-    # latest = sorted(glob.glob("dictData_[0-9]*.npy"))[-1]
     latest = sorted(glob.glob("dictData_small_[0-9]*.npy"))[-1]
     print("Loading data from", latest)
     dictData = np.load(latest, allow_pickle=True)
@@ -381,8 +338,6 @@ vmin_log_r, vmax_log_r = -0.3, 0.3 # None, None
 
 
 tickPos = np.linspace(vmin, vmax ,int(round((vmax-vmin)/0.1)+1))
-# tickPos = [vmin, (vmin+vmax)/2, vmax]
-
 
 datasetName = "doc_wt_nc11nc12_loRes_20_perROI_3D"
 pwd_sc_nc11nc12 = get_sc_pwd(dictData, datasetName)
@@ -405,14 +360,12 @@ ax = axs[0,0]
 plot_map(ax, pwd_KDE_nc11nc12, cm_map, vmin, vmax,
          title="n={}".format(pwd_sc_nc11nc12.shape[2]),
          cbar_draw=True, cbar_label="Distance (µm)", cbar_ticks=tickPos) # cbar_orient="vertical"
-# print("N={}".format(pwd_sc_nc11nc12.shape[2]))
 
 
 ax = axs[0,1]
 plot_map(ax, pwd_KDE_nc14, cm_map, vmin, vmax,
          title="n={}".format(pwd_sc_nc14.shape[2]),
          cbar_draw=True, cbar_label="Distance (µm)", cbar_ticks=tickPos) # cbar_orient="vertical"
-# print("N={}".format(pwd_sc_nc14.shape[2]))
 
 
 ax = axs[1,0]
@@ -425,33 +378,12 @@ plot_map(ax, pwd_KDE_log_r, cmap="bwr", vmin=vmin_log_r, vmax=vmax_log_r,
          title="log2(nc14/nc11nc12)",
          cbar_draw=True, cbar_label="log2(nc14/nc11nc12)")
 
-
-# ax = axs[1,1]
-# ax.set_axis_off()
-# # ax.text(0.1, 0.5, datasetName)
-
-
 fig.tight_layout()
-
-# figName = "Figure_1/Fig_1_C"
-# fPath = os.path.join(PDFpath, figName)
-# pathFigDir = os.path.dirname(fPath)
-# createDir(pathFigDir, 0o755)
-# fig.savefig(fPath+".pdf") # matrix looks crappy with svg
-
-
-
-
-
-
-
-
 
 
 #%% Fig 1 D (top), representative sc maps, doc_wt_nc11nc12_loRes_20_perROI_3D
 
 showAll = False # True: show all sc pwd with maxMissing, False: plot for paper
-
 
 datasetName = "doc_wt_nc11nc12_loRes_20_perROI_3D"
 
@@ -473,11 +405,6 @@ else:
     pathFigDir = os.path.dirname(fPath)
     createDir(pathFigDir, 0o755)
     fig.savefig(fPath+".pdf")  # matrix looks crappy with svg
-
-
-
-
-
 
 
 #%% Fig 1 D (middle), pair correlation, doc_wt_nc11nc12_loRes_20_perROI_3D
@@ -503,16 +430,6 @@ p_pc["numShuffle"] = 10
 # run pair corr
 pair_corr = get_pair_corr(pwd_sc, p_pc)
 
-# S_data = pair_corr["S_data"]
-# O_data = pair_corr["O_data"]
-# P_data = pair_corr["P_data"]
-# S_shuffle = pair_corr["S_shuffle"]
-# O_shuffle = pair_corr["O_shuffle"]
-# P_shuffle = pair_corr["P_shuffle"]
-# sel = pair_corr["sel"]
-# sSubR = pair_corr["sSubR"]
-
-
 # plot histogram
 color = myColors[0] # "C1"
 fig = plot_pair_corr(pair_corr, p_pc, color, datasetName, yLim=4.0)
@@ -524,17 +441,12 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
-
-
-
-
 #%% find pairs with high or close to zero pair corr
 
 datasetName = "doc_wt_nc11nc12_loRes_20_perROI_3D"
 # datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
 
 pwd_sc_orig = get_sc_pwd(dictData, datasetName)
-
 
 # get variables from dict pair_corr
 sel = pair_corr["sel"]
@@ -544,15 +456,9 @@ P_data = pair_corr["P_data"]
 
 pwd_sc_orig = pwd_sc_orig[:,:,sel]
 
-
-# # cmap = "PiYG"
-# cmap = copy.copy(plt.get_cmap("PiYG")) # copy of cmap to supress warning
-# cmap.set_bad(color=[0.8, 0.8, 0.8]) # set color of NaNs and other invalid values
-# vmin, vmax = cutoff_dist[0], cutoff_dist[1]
 vmin, vmax = 0.3, 1.5
 
 mask = (S_data>0.4) & (O_data>0.7)
-# mask = (S_data>-0.05) & (S_data<0.05) & (O_data>0.95)
 nice_pairs = [p for (p, m) in zip(P_data, mask) if m]
 print(np.sum(mask), nice_pairs)
 
@@ -577,12 +483,10 @@ for j in range(numPages):
             continue
         nuc1, nuc2 = pair.split(", ")
         ax = axs[i*2]
-        # ax.matshow(1/pwd_sc[:,:,int(nuc1)], cmap=cm_map, vmin=vmin, vmax=vmax)
         ax.matshow(pwd_sc_orig[:,:,int(nuc1)], cmap=cm_map, vmin=vmin, vmax=vmax)
         ax.set_xticks([]); ax.set_yticks([])
         ax.set_title(pair, y=0.9, fontsize=8)
         ax = axs[i*2+1]
-        # ax.matshow(1/pwd_sc[:,:,int(nuc2)], cmap=cm_map, vmin=vmin, vmax=vmax)
         ax.matshow(pwd_sc_orig[:,:,int(nuc2)], cmap=cm_map, vmin=vmin, vmax=vmax)
         ax.set_xticks([]); ax.set_yticks([])
         ax.set_title(pair, y=0.9, fontsize=8)
@@ -595,12 +499,7 @@ for j in range(numPages):
 #%% plot pairs for "high" and zero pair corrrelation
 
 
-# with settings cutoff_dist = [0.05, 1.5], inverse_PWD = True, minDetections = 13, step = 1, minRatioSharedPWD = 0.5
-# a nice pair is "111, 715" (numbers given for selection based on minDetections)
-# how to find this pair:  use code above to show pairs of nuclei, choose manually
-
 nicest_pair = "111, 715" # for "high" pair corr (around 0.4)
-# nicest_pair = "111, 302" # for pair corr around zero
 
 # get pair corr for this pair
 loc = np.where(np.array(nice_pairs)==nicest_pair)
@@ -620,8 +519,6 @@ pwd_sc_orig = get_sc_pwd(dictData, datasetName)
 
 
 # # cmap = "PiYG"
-# cmap = copy.copy(plt.get_cmap("PiYG")) # copy of cmap to supress warning
-# cmap.set_bad(color=[0.8, 0.8, 0.8]) # set color of NaNs and other invalid values
 vmin, vmax = 0.3, 1.5
 
 fig, axs = plt.subplots(nrows=1, ncols=2, dpi=72) # default 72dpi
@@ -634,10 +531,6 @@ ax.set_xticks([]); ax.set_yticks([])
 
 
 
-
-
-
-
 #%% Fig 1 E (top), representative sc maps, doc_wt_nc14_loRes_20_perROI_3D
 
 showAll = False # True: show all sc pwd with maxMissing, False: plot for paper
@@ -645,10 +538,7 @@ showAll = False # True: show all sc pwd with maxMissing, False: plot for paper
 
 datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
 
-# listShowSC = [5431, 1069, 6073, 147, 13610] # version 1
-# listShowSC = [147, 1069, 6073, 10483, 13610] # version 2
 listShowSC = [147, 1069, 5426, 6073, 10483] # version 3, 10024, 12521
-
 
 pwd_sc = get_sc_pwd(dictData, datasetName)
 
@@ -717,11 +607,6 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
-
-
-
-
-
 #%% Fig 1 G, UMAP Bintu data, run UMAP
 
 selRange = None # None, or [bin start, bin end] for making a selection
@@ -755,16 +640,11 @@ createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
 
-
-
-
 #%% Fig 1 G, right, pwd maps Buntu
 
 vmin, vmax = 0.2, 0.8 # in µm
 
 tickPos = np.linspace(vmin, vmax ,int(round((vmax-vmin)/0.1)+1))
-# tickPos = [vmin, (vmin+vmax)/2, vmax]
-
 
 datasetName = "HCT116_chr21-34-37Mb_6h auxin"
 pwd_sc_aux = get_sc_pwd(dictData, datasetName)
@@ -783,14 +663,12 @@ ax = axs[0]
 plot_map(ax, pwd_median_aux, cm_map, vmin, vmax,
          title="n={}".format(pwd_sc_aux.shape[2]),
          cbar_draw=True, cbar_label="Distance (µm)", cbar_ticks=tickPos) # cbar_orient="vertical"
-# print("N={}".format(pwd_sc_nc11nc12.shape[2]))
 
 
 ax = axs[1]
 plot_map(ax, pwd_median_wt, cm_map, vmin, vmax,
          title="n={}".format(pwd_sc_wt.shape[2]),
          cbar_draw=True, cbar_label="Distance (µm)", cbar_ticks=tickPos) # cbar_orient="vertical"
-# print("N={}".format(pwd_sc_nc14.shape[2]))
 
 
 fig.tight_layout()
@@ -800,10 +678,6 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".pdf") # matrix looks crappy with svg
-
-
-
-
 
 #%% Fig 1 H, UMAP loRes nc11nc12 vs nc14
 
@@ -819,8 +693,6 @@ sFunctEns = "KDE"
 
 dictUMAP = prepare_UMAP(dictData, selRange, minmaxMiss, steps, dictUMAP,
                         keyDict, datasetNames, listClasses, sFunctEns)
-# dictUMAP = prepare_UMAP_dineof(dictData, dictUMAP, keyDict,
-#                                datasetNames, listClasses, steps=[1, 1])
 
 # run UMAP
 random_state = 123456 # None, 42
@@ -841,10 +713,7 @@ fig.savefig(fPath+".svg")
 
 
 
-
-
-#%% EXPERIMENTAL: Fig 1 H, UMAP loRes nc11nc12 vs nc14 + "population average"
-# TODO: remove for production
+#%% Fig 1 H, UMAP loRes nc11nc12 vs nc14 + "population average"
 
 selRange = None # None, or [bin start, bin end] for making a selection
 minmaxMiss = [(0, 7), (0, 6)] # order is nc11nc12: (min, max), nc14: (min, max)
@@ -855,7 +724,6 @@ datasetNames = ["doc_wt_nc11nc12_loRes_20_perROI_3D", "doc_wt_nc14_loRes_20_perR
 listClasses = ["nc11nc12", "nc14"]
 sFunctEns = "KDE"
 
-
 dictUMAP = prepare_UMAP(dictData, selRange, minmaxMiss, steps, dictUMAP,
                         keyDict, datasetNames, listClasses, sFunctEns)
 
@@ -865,16 +733,6 @@ dictUMAP = run_UMAP(dictUMAP, keyDict, random_state)
 
 # get colormap
 cmap = ListedColormap([myColors[0], myColors[1]])
-
-# # plot scatter of the UMAP colorized according nuclear cycle
-# fig = plot_scatter_UMAP(dictUMAP[keyDict], cmap, hideTicks=True)
-
-
-# transform the population average into the same embedded space
-# pwd_KDE = dictData[datasetNames[0]]["KDE"]
-
-# arrays = [dictData[datasetNames[i]]["KDE"] for i in range(len(datasetNames))]
-# pwd_KDE = np.stack(arrays, axis=2)
 
 arrays = [dictData[datasetNames[i]]["pwd_sc_raw"] for i in range(len(datasetNames))]
 arrays = [np.nanmedian(arrays[i], axis=2) for i in range(len(datasetNames))]
@@ -896,11 +754,7 @@ ax = fig.axes[0]
 ax.scatter(emb_KDE[:,0], emb_KDE[:,1], c=["r", "b"], s=30)
 
 
-
-
-
-#%% EXPERIMENTAL: Fig 1 H, get estimate for nc11/12 and nc14 regions from density
-# TODO: remove for production
+#%% Fig 1 H, get estimate for nc11/12 and nc14 regions from density
 
 # run section for Fig 1H first
 
@@ -918,11 +772,6 @@ cmap_scatter = ListedColormap([myColors[0], myColors[1]])
 
 cmaps = ["Reds", "Blues"]
 alphas = [1, 0.5]
-# cmaps = ["r", "b"]
-# # get min and max from axes on plot
-# ax = fig.axes[0]
-# xmin, xmax = ax.get_xlim()
-# ymin, ymax = ax.get_ylim()
 
 xmin, xmax = np.min(embedding[:,0]), np.max(embedding[:,0])
 ymin, ymax = np.min(embedding[:,1]), np.max(embedding[:,1])
@@ -932,31 +781,9 @@ ymin, ymax = np.min(embedding[:,1]), np.max(embedding[:,1])
 # (see https://stackoverflow.com/questions/30145957/plotting-2d-kernel-density-estimation-with-python)
 xx, yy = np.mgrid[xmin:xmax:250j, ymin:ymax:250j]
 positions = np.vstack([xx.ravel(), yy.ravel()])
-# values = np.vstack([x, y])
-# kernel = st.gaussian_kde(values)
+
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 6), dpi=150) # default (6.4, 4.8), 72dpi
-
-# # plot joint density
-# kernel = gaussian_kde(embedding.T, bw_method=bw_method)
-# f = np.reshape(kernel(positions).T, xx.shape)
-# cfset = ax.contourf(xx, yy, f, cmap='Blues')
-# cset = ax.contour(xx, yy, f, colors='k')
-# ax.clabel(cset, inline=1, fontsize=10)
-
-
-# # plot density by nc
-# for i in np.unique(classNum):
-#     kernel = gaussian_kde(embedding[classNum==i,:].T, bw_method=bw_method)
-#     f = np.reshape(kernel(positions).T, xx.shape)
-
-#     # cfset = ax.contourf(xx, yy, f, cmap='Blues')
-#     cfset = ax.contourf(xx, yy, f, cmap=cmaps[i], alpha=alphas[i])
-#     # cset = ax.contour(xx, yy, f, colors='k')
-#     # cset = ax.contour(xx, yy, f, colors=cmaps)
-#     # ax.clabel(cset, inline=1, fontsize=10)
-
-
 
 
 kernel_nc11nc12 = gaussian_kde(embedding[classNum==0,:].T, bw_method=bw_method)
@@ -978,11 +805,6 @@ cfset = ax.contourf(xx, yy, f, cmap="bwr", alpha=0.15)
 cset = ax.contour(xx, yy, f, colors="k")
 ax.scatter(embedding[:,0], embedding[:,1], s=6, c=classNum,
            cmap=cmap_scatter, alpha=1.0)
-
-
-
-
-
 
 
 #%% Fig 1 H, right, pwd maps loRes
@@ -1030,9 +852,6 @@ fig.savefig(fPath+".pdf") # matrix looks crappy with svg
 
 
 
-
-
-
 #%% Fig Supp 1 B, image for localization of barcode
 
 #TODO remove for production
@@ -1050,10 +869,6 @@ plt.imshow(img_barcode)
 from PIL import Image
 im = Image.fromarray(img_barcode)
 im.save("Figure_1/Supp_Fig_1_B_embryo.tif")
-
-
-
-
 
 #%% Fig Supp 1 C, detection efficiency loRes nc11nc12 and nc14
 
@@ -1103,9 +918,6 @@ createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
 
-
-
-
 #%% Fig Supp 1 C, barcode per cell, loRes nc11nc12 and nc14
 
 datasetNames = ["doc_wt_nc11nc12_loRes_20_perROI_3D",
@@ -1133,8 +945,6 @@ for i, datasetName in enumerate(datasetNames):
     
     ax.set_xlabel("Barcodes per cell")
     ax.set_xlim(1.5, numBarcodes+0.5)
-    # ax.set_xticks(np.arange(2, numBarcodes+1, 3))
-    # ax.set_xticks([2, 5, 10, 15, 20])
     step = 5
     ax.set_xticks([2] + list(range(step, numBarcodes+1, step)))
     
@@ -1167,17 +977,10 @@ fig.savefig(fPath+".svg")
 
 #%% Fig Supp 1 D, E, plotDistanceHistograms
 
-
-# plotDistanceHistograms() does not return anything, just writes image to disk
-# (format defined by outputFileName, default is png if extension is missing)
-
 pixelSize = 1.0 # as PWD maps are converted to µm already, set this to 1
 mode = "KDE" # hist, KDE
 kernelWidth = 0.25 # in µm; 0.25 is default in pyHiM
 maxDistance = 4.0 # in µm; 4.0 is default in pyHiM; removes larger distances
-
-
-
 
 datasetName = "doc_wt_nc11nc12_loRes_20_perROI_3D"
 
@@ -1188,14 +991,9 @@ logNameMD = fPath + "_log.md"
 
 pwd_sc = get_sc_pwd(dictData, datasetName)
 
-
 plotDistanceHistograms(
     pwd_sc, pixelSize, fPath, logNameMD, mode=mode, limitNplots=0,
     kernelWidth=kernelWidth, optimizeKernelWidth=False, maxDistance=maxDistance)
-
-
-
-
 
 datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
 
@@ -1212,17 +1010,10 @@ plotDistanceHistograms(
     kernelWidth=kernelWidth, optimizeKernelWidth=False, maxDistance=maxDistance)
 
 
-
-
-
 #%% Fig Supp 1 F, difference map loRes, KDE nc14 nc11nc12
 
 # this plot is created with Fig 1 C, see this section
 vmin_diff, vmax_diff = -0.1, 0.1 # in µm
-
-# tickPos = np.linspace(vmin, vmax ,int(round((vmax-vmin)/0.1)+1))
-# tickPos = [vmin, (vmin+vmax)/2, vmax]
-
 
 datasetName = "doc_wt_nc11nc12_loRes_20_perROI_3D"
 pwd_sc_nc11nc12 = get_sc_pwd(dictData, datasetName)
@@ -1233,9 +1024,7 @@ datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
 pwd_sc_nc14 = get_sc_pwd(dictData, datasetName)
 pwd_KDE_nc14 = dictData[datasetName]["KDE"]
 
-
 pwd_KDE_diff_nc14_nc11nc12 = pwd_KDE_nc14 - pwd_KDE_nc11nc12
-
 
 # plot
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 6), dpi=300) # default (6.4, 4.8), 72dpi
@@ -1245,16 +1034,11 @@ plot_map(ax, pwd_KDE_diff_nc14_nc11nc12, cmap="bwr",
          title="KDE nc14-nc11nc12", cbar_draw=True,
          cbar_ticks=[vmin_diff, 0, vmax_diff], cbar_label="Distance change (µm)")
 
-# fig.tight_layout()
-
 figName = "Figure_1/Supp_Fig_1_F"
 fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".pdf") # matrix looks crappy with svg
-
-
-
 
 
 #%% Fig 1 leftover, radius of gyration, nc11nc12 and nc14 (raw data)
@@ -1265,9 +1049,6 @@ minFracNotNaN = 0.33
 
 minmaxBins = [[13, 21]] # for each TAD: [binStart, binEnd];
                         # numpy indexing, thus last bin won't be included
-# minmaxBins = [[ 0, 13],
-#               [13, 21]]
-
 
 datasetNames = ["doc_wt_nc11nc12_loRes_20_perROI_3D",
                 "doc_wt_nc14_loRes_20_perROI_3D"]
@@ -1292,9 +1073,6 @@ for datasetName in datasetNames:
                                                      minFracNotNaN=minFracNotNaN)
     
     dictRg[datasetName] = r_gyration
-
-
-
 
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4, 6), dpi=150) # default (6.4, 4.8), 72dpi
@@ -1363,25 +1141,10 @@ for i, datasetName in enumerate(datasetNames):
     list_data.append(r_gyration[keep, 0])
 
 
-# statistic, pvalue = ks_2samp(list_data[0], list_data[1])
-# statistic, pvalue = mannwhitneyu(list_data[0], list_data[1])
 statistic, pvalue = ttest_ind(list_data[0], list_data[1], equal_var=False)#, permutations=1000) # needs scipy 1.7
-# statistic, pvalue = cramervonmises_2samp(list_data[0], list_data[1]) # needs scipy 1.7
 
 
 print("statistic {}, pvalue {}".format(statistic, pvalue))
-
-
-# """
-# equal_var :
-# If True (default), perform a standard independent 2 sample test that assumes equal population variances [1].
-# If False, perform Welch’s t-test, which does not assume equal population variance [2].
-# """
-
-
-
-
-
 
 
 #%% Fig 2 A, meaning UMAP axes, difference map selection vs full PWD map
@@ -1391,15 +1154,8 @@ axis_split = [0, 1] # 0 or 1 to split in x or y direction
 
 
 pixelSize = 1 # in µm, as pwd_sc is in µm already, set to 1
-# vmin, vmax = 0.3, 0.8 # in µm
 vmin_diff, vmax_diff = -0.05, 0.05
 cmap = "bwr"
-
-
-# # get the ensemble KDE
-# datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
-# KDE_all = dictData[datasetName]["KDE"]
-
 
 c_grey = [0.6, 0.6, 0.6] # the smaller the darker
 pnt_size = 1.5
@@ -1416,8 +1172,6 @@ KDE_UMAP, _ = calculatesEnsemblePWDmatrix(pwd_sc_UMAP, pixelSize,
 
 
 # # get center of mass of embedding
-# COM = np.median(embedding, axis=0)
-# get cutoff from quantile. if q=0.5, then it's the COM
 q = 0.333
 cutoff_lower = np.quantile(embedding, q, axis=0)
 cutoff_upper = np.quantile(embedding, 1-q, axis=0)
@@ -1427,7 +1181,6 @@ cutoff_upper = np.quantile(embedding, 1-q, axis=0)
 
 gs_kw = dict(width_ratios=[1, 2], height_ratios=[1, 1, 1, 1])
 
-# fig, axs = plt.subplots(nrows=4, ncols=2, figsize=(9, 12), dpi=300,
 fig, axs = plt.subplots(nrows=4, ncols=2, figsize=(5.5, 6), dpi=600,
                         constrained_layout=True, gridspec_kw=gs_kw)
 
@@ -1484,9 +1237,6 @@ fig.savefig(fPath+".svg")
 fig.savefig(fPath+".pdf")
 
 
-
-
-
 #%% Fig 2 B, loRes, correlation Rg TAD1 vs doc-TAD
 
 
@@ -1494,8 +1244,6 @@ fillMode = "KDE"
 cutoff = 1.0 # in µm
 minFracNotNaN = 0.33
 
-# minmaxBins = [[0, 18]] # for each TAD: [binStart, binEnd];
-#                         # numpy indexing, thus last bin won't be included
 minmaxBins = [[ 0, 13], # TAD1
               [13, 21]] # doc-TAD
 
@@ -1628,8 +1376,7 @@ fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 10), dpi=150) # default (6
 # nuclei without Rg in light grey
 plot = ax.scatter(embedding[~sel_Rg,0], embedding[~sel_Rg,1],
                   s=10, marker="x", linewidths=1, facecolors=[0.2]*3, alpha=1.0) # the smaller the darker
-                  # s=10, marker="o", edgecolors=[0.5,0.5,0.5], facecolors="none", alpha=1.0) # the smaller the darker
-                  # s=3, c=[0.8,0.8,0.8], alpha=1.0)
+
 
 # nuclei with Rg according to color map
 plot = ax.scatter(embedding[sel_Rg,0], embedding[sel_Rg,1],
@@ -1679,7 +1426,6 @@ datasetNames = ["doc_wt_nc11nc12_loRes_20_perROI_3D",
 # parameters for data handling; make sure they are the same as for the UMAP
 minmaxMiss = {"doc_wt_nc11nc12_loRes_20_perROI_3D": [0,7],
               "doc_wt_nc14_loRes_20_perROI_3D": [0,6]}
-# minmaxMiss = [(0, 7), (0, 6)] # order is nc11nc12: (min, max), nc14: (min, max)
 fillMode = "KDE"
 
 invertPWD = True
@@ -1778,8 +1524,6 @@ for iData, datasetName in enumerate(datasetNames):
     else:
         ax.set_ylim(5.5, 8.5)
     
-    # ax.set_xticks(np.arange(sqSize,nBarcodes-sqSize+1,3))
-    # ax.set_xticklabels(np.arange(sqSize,nBarcodes-sqSize+1,3)+1)
     ax.set_xticks([])
     
     # ax.set_xlabel("Barcode")
@@ -1924,9 +1668,6 @@ createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
 
-
-
-
 #%% Fig 2 F, UMAP colorcoded by insulation score (use data filled with KDE for calculation of IS)
 # run UMAP for loRes first!
 
@@ -1941,8 +1682,7 @@ cmap = "coolwarm_r" # match style in Fig 2G
 if doLog:
     vmin, vmax = 0, 2
 else:
-    # vmin, vmax = None, None
-    # vmin, vmax = 2, 13
+
     vmin, vmax = 0, 14 # match values in Fig 2G
     # if "HCT116" in datasetName:
     if scNormalize:
@@ -2031,42 +1771,11 @@ createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
 
-
-
-
-
-
-
-
 #%% Fig Supp 2 A, Bintu data, 20 barcodes centered on "strong" and "weak" border
 
 
 # get colormap
 cmap = ListedColormap([myColors[0], myColors[1]])
-
-
-
-# # "strong border", minmaxMissing mimicing doc locus
-# selRange = [40,60] #[15,35] #[40,60] None, or [bin start, bin end] for making a selection
-# minmaxMiss = [(0, 7), (0, 7)] # order is aux: (min, max), wt: (min, max)
-# steps = [10, 11] # order is aux, wt
-
-# keyDict = "Bintu strong border"
-# datasetNames = ["HCT116_chr21-34-37Mb_6h auxin", "HCT116_chr21-34-37Mb_untreated"] #Chr21:34.6Mb-37.1Mb, 30kb res
-# listClasses = ["aux", "wt"]
-# sFunctEns = "median"
-
-# dictUMAP = prepare_UMAP(dictData, selRange, minmaxMiss, steps, dictUMAP,
-#                         keyDict, datasetNames, listClasses, sFunctEns)
-
-# random_state = 123456 # None, 42
-# dictUMAP = run_UMAP(dictUMAP, keyDict, random_state)
-
-# # plot scatter of the UMAP
-# fig = plot_scatter_UMAP(dictUMAP[keyDict], cmap)
-# fig.axes[0].set_title("{}, selRange={}\n{}".format(keyDict, selRange, fig.axes[0].get_title()), fontsize=12)
-
-
 
 # "strong border", minmaxMissing as small as possible
 selRange = [40,60] #[15,35] #[40,60] None, or [bin start, bin end] for making a selection
@@ -2096,31 +1805,6 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
-
-
-
-# # "weak border", minmaxMissing mimicing doc locus
-# selRange = [15,35] #[15,35] #[40,60] None, or [bin start, bin end] for making a selection
-# minmaxMiss = [(0, 7), (0, 7)] # order is aux: (min, max), wt: (min, max)
-# steps = [10, 12] # order is aux, wt
-
-# keyDict = "Bintu weak border"
-# datasetNames = ["HCT116_chr21-34-37Mb_6h auxin", "HCT116_chr21-34-37Mb_untreated"] #Chr21:34.6Mb-37.1Mb, 30kb res
-# listClasses = ["aux", "wt"]
-# sFunctEns = "median"
-
-# dictUMAP = prepare_UMAP(dictData, selRange, minmaxMiss, steps, dictUMAP,
-#                         keyDict, datasetNames, listClasses, sFunctEns)
-
-# random_state = 123456 # None, 42
-# dictUMAP = run_UMAP(dictUMAP, keyDict, random_state)
-
-# # plot scatter of the UMAP
-# fig = plot_scatter_UMAP(dictUMAP[keyDict], cmap)
-# fig.axes[0].set_title("{}, selRange={}\n{}".format(keyDict, selRange, fig.axes[0].get_title()), fontsize=12)
-
-
-
 # "weak border", minmaxMissing as small as possible
 selRange = [15,35] #[15,35] #[40,60] None, or [bin start, bin end] for making a selection
 minmaxMiss = [(0, 0), (0, 0)] # order is aux: (min, max), wt: (min, max)
@@ -2149,17 +1833,12 @@ createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
 
-
-
-
 #%% Fig Supp 2 B, doc loRes, scanning UMAP hyper-parameters
 
 datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
 
 vmin, vmax = 1.5, 3.0 # in µm^-1
 vmin, vmax = 0.5, 1.1 # in µm^-1
-
-
 
 pwd_sc_KDE = dictData[datasetName]["KDE"]
 
@@ -2250,9 +1929,6 @@ minFracNotNaN = 0.33
 
 minmaxBins = [[13, 21]] # for each TAD: [binStart, binEnd];
                         # numpy indexing, thus last bin won't be included
-# minmaxBins = [[ 0, 13],
-#               [13, 21]]
-
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 6), dpi=300) # default (6.4, 4.8), 72dpi
 
@@ -2294,8 +1970,7 @@ for i, (datasetName, useRaw) in enumerate(product(datasetNames, [True, False])):
             r_gyration[iNuc, iTAD] = get_Rg_from_PWD(pwd_sc_clipped[:,:,iNuc],
                                                      minFracNotNaN=minFracNotNaN)
     
-    # dictRg[datasetName] = r_gyration
-    
+  
     # plot
     keep = ~np.isnan(r_gyration[:,0])
     plot = ax.violinplot(r_gyration[keep,0], [i], widths=0.5, # width of violin
@@ -2321,7 +1996,6 @@ ax.set_ylabel("Radius of gyration (µm)")
 
 # fix colors
 colors = [myColors[0], myColors[0], myColors[1], myColors[1]]
-# colors = [(1,0,0), (0,0,1)] # red, blue
 
 for i in range(numPlots):
     plots[i]["bodies"][0].set_facecolor(colors[i]) # set_edgecolor(<color>), set_linewidth(<float>), set_alpha(<float>)
@@ -2434,7 +2108,6 @@ ax.set_title(txt, fontsize=12)
 
 # fix colors
 colors = [myColors[0], myColors[0], myColors[1], myColors[1]]
-# colors = [(1,0,0), (0,0,1)] # red, blue
 
 for i in range(numPlots):
     plots[i]["bodies"][0].set_facecolor(colors[i]) # set_edgecolor(<color>), set_linewidth(<float>), set_alpha(<float>)
@@ -2513,9 +2186,6 @@ for i, (datasetName, useRaw) in enumerate(product(datasetNames, [True, False])):
     # get median of insulation score profile
     IS = np.nanmedian(insulation_score, axis=0)
     
-    # bootstrap error
-    # skip for now
-    
     # plot
     sLabel = "{}, {}".format(sData, sType)
     plot = ax.plot(np.arange(1, IS.shape[0]+1), IS, "o-",
@@ -2552,10 +2222,6 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
-
-
-
-
 #%% Fig Supp 2 X, Bintu data, UMAP colorcoded acc to insulation score
 # run UMAP for Bintu data first!
 
@@ -2570,8 +2236,7 @@ cmap = "coolwarm"
 if doLog:
     vmin, vmax = 0, 2
 else:
-    # vmin, vmax = None, None
-    # vmin, vmax = 2, 13
+
     vmin, vmax = 40, 125
     
     # if "HCT116" in datasetName:
@@ -2581,7 +2246,6 @@ else:
 
 dictKey = "Bintu"
 pwd_sc_lin_cat = dictUMAP[dictKey]["pwd_sc_lin_cat"]
-# classID = dictUMAP[dictKey]["classID"]
 embedding = dictUMAP[dictKey]["embedding"]
 classes = dictUMAP[dictKey]["classes"]
 fillMode = dictUMAP[dictKey]["fillMode"]
@@ -2589,7 +2253,6 @@ minmaxMiss = dictUMAP[dictKey]["minmaxMiss"]
 classNum = dictUMAP[dictKey]["classNum"]
 n_neighbors = dictUMAP[dictKey]["p"]["n_neighbors"]
 min_dist = dictUMAP[dictKey]["p"]["min_dist"]
-
 
 
 # get square version of the PWD maps that made it into the UMAP
@@ -2662,40 +2325,23 @@ createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
 
-
-
-
 #%% Fig Supp 2 Y, doc loRes, colorcode by experiment
 # run section for Fig. 2C first
 
 keyDict = "loRes"
-# datasetNames = ["doc_wt_nc11nc12_loRes_20_perROI_3D", "doc_wt_nc14_loRes_20_perROI_3D"]
-# listClasses = ["nc11nc12", "nc14"]
 
 # load embedding, select nc14 (embedding includes both nc11nc12 and nc14)
 embedding = dictUMAP[keyDict]["embedding"]
 classNum = dictUMAP[keyDict]["classNum"]
 classNum_nc14 = np.argmax(dictUMAP[keyDict]["classes"] == "nc14")
 sel_emb_nc14 = (classNum==classNum_nc14)
-# embedding = embedding[classNum==sel_class,:]
 
 # load sel_UMAP_*
-# sel_UMAP_nc11nc12 = dictUMAP[keyDict]["sel_UMAP_nc11nc12"]
 sel_UMAP_nc14 = dictUMAP[keyDict]["sel_UMAP_nc14"]
-# sel_UMAP = np.concatenate((sel_UMAP_nc11nc12, sel_UMAP_nc14))
 
 # get array with experiment and embryo
-# wt_doc_loRes_20RTs_nc11nc12_perROI, wt_doc_loRes_20RTs_nc14_perROI, 
 exp_emb = dictData["doc_wt_nc14_loRes_20_perROI_3D"]["exp_emb"]
-#!!!
-# exp_emb = []
-# # exp_emb += load_sc_data_info(dictData, "doc_wt_nc11nc12_loRes_20_perROI_3D")
-# exp_emb += load_sc_data_info(dictData, "doc_wt_nc14_loRes_20_perROI_3D")
 exp_emb = np.array(exp_emb)
-
-
-# # colorize by experiment
-# classes_exp_emb, classNum_exp_emb = np.unique(exp_emb[:,0], return_inverse=True) # classes will be sorted alphanumerically!
 
 # colorize by experiment & embryo
 classes_exp_emb, classNum_exp_emb = np.unique(exp_emb, axis=0,
@@ -2709,12 +2355,6 @@ plot = ax.scatter(embedding[~sel_emb_nc14,0], embedding[~sel_emb_nc14,1],
                   s=10, color=[0.8, 0.8, 0.8])
 plot = ax.scatter(embedding[sel_emb_nc14,0], embedding[sel_emb_nc14,1],
                   s=10, c=classNum_exp_emb[sel_UMAP_nc14], cmap="tab10")
-
-# # get colormap
-# cmap = ListedColormap([
-#     (0.8, 0.8, 0.8, 1.0), # nc11nc12
-#     myColors[3],          # nc14 OFF
-#     myColors[2]           # nc14 ON
 
 # legend
 list_legend = []
@@ -2761,11 +2401,6 @@ step = 2
 bins = np.arange(0, 8+1, step) # bins = np.linspace(0, 8, 5)
 digitized = np.digitize(numMissing, bins)
 
-# # colormap
-# viridis, plasma, Reds, YlOrRd, autumn, inferno
-# tab10 = plt.get_cmap("tab10", 10)
-# cmap = ListedColormap([tab10(i) for i in range(4)])
-
 # plot
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 6), dpi=150) # default (6.4, 4.8), 72dpi
 plot = ax.scatter(embedding[:,0], embedding[:,1],
@@ -2798,9 +2433,6 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
-
-
-
 
 
 #%% Fig 3 B, loRes, intra- vs inter-TAD distances, ON vs OFF
@@ -2894,15 +2526,9 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
-
-
-
 #%% Fig 3 C, nuclei colorcoded by radius of gyration
 
 # see separate script plots_for_paper_DAPI_masks_210625.py
-
-
-
 
 
 #%% Fig 3 D, top, population average maps of doc loRes 20RTs, ON vs OFF
@@ -2962,9 +2588,6 @@ createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".pdf") # matrix looks crappy with svg
 
 
-
-
-
 #%% Fig 3 D, bottom, UMAP, doc loRes 20RTs, nc11nc12, nc14 ON, nc14 OFF
 # (run section for Figure 1 H first)
 
@@ -2976,18 +2599,6 @@ sc_label = "doc"; sc_action = "labeled"
 
 label_SNDchan = dictData[datasetName]["SNDchan"][sc_label+"_"+sc_action]
 
-
-# # recycle the UMAP from above (Fig. 2C)
-# embedding = dictUMAP[keyDict]["embedding"] = embedding
-# classID = dictUMAP[keyDict]["classID"]
-# classes = dictUMAP[keyDict]["classes"]
-# fillMode = dictUMAP[keyDict]["fillMode"]
-# minmaxMiss = dictUMAP[keyDict]["minmaxMiss"]
-# classNum = dictUMAP[keyDict]["classNum"]
-# sel_UMAP_nc14 = dictUMAP[keyDict]["sel_UMAP_nc14"]
-# n_neighbors = dictUMAP[keyDict]["p"]["n_neighbors"]
-# min_dist = dictUMAP[keyDict]["p"]["min_dist"]
-# metric = dictUMAP[keyDict]["p"]["metric"]
 
 
 # include ON/OFF information in classID
@@ -3016,8 +2627,6 @@ cmap = ListedColormap([
     (0.8, 0.8, 0.8, 1.0), # nc11nc12
     myColors[3],          # nc14 OFF
     myColors[2]           # nc14 ON
-    # (0.0, 0.0, 1.0), # nc14 OFF
-    # (1.0, 0.0, 0.0)  # nc14 ON
     ])
 
 
@@ -3031,9 +2640,6 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
-
-
-
 
 
 #%% Fig 3 E, top, population average maps of doc hiRes 17RTs, ON vs OFF
@@ -3099,8 +2705,6 @@ fig.savefig(fPath+".pdf") # matrix looks crappy with svg
 #%% Fig 3 E, bottom, UMAP, doc hiRes 17RTs, nc11nc12, nc14 ON, nc14 OFF
 
 
-# minmaxMiss = [(0, 5), (0, 3)] and listKeepPattern = [None, [1,0,0]]
-# minmaxMiss = [(0, 5), (0, 2)] and listKeepPattern = [None, None]
 
 selRange = None # None, or [bin start, bin end] for making a selection
 minmaxMiss = [(0, 5), (0, 2)] # order is nc11nc12: (min, max), nc14: (min, max)
@@ -3153,8 +2757,6 @@ cmap = ListedColormap([
     (0.8, 0.8, 0.8, 1.0), # nc11nc12
     myColors[3],          # nc14 OFF
     myColors[2]           # nc14 ON
-    # (0.0, 0.0, 1.0), # nc14 OFF
-    # (1.0, 0.0, 0.0)  # nc14 ON
     ])
 
 
@@ -3215,13 +2817,8 @@ fig = plot_pair_corr(pair_corr, p_pc, color, datasetName, bins=bins,
 
 # compare distributions, get p-vale; also compare data vs shuffle
 # statistic, pvalue = ks_2samp(pair_corr_all["S_data"], pair_corr["S_data"])
-# print("KS loRes: all, ON: statistic, pvalue", statistic, pvalue)
 statistic, pvalue = mannwhitneyu(pair_corr_all["S_data"], pair_corr["S_data"])
 print("mannwhitneyu loRes: all, ON: statistic, pvalue", statistic, pvalue)
-# statistic, pvalue = ks_2samp(pair_corr["S_data"], pair_corr["S_shuffle"])
-# print("KS loRes: ON, ON_shuffle: statistic, pvalue", statistic, pvalue)
-# statistic, pvalue = mannwhitneyu(pair_corr["S_data"], pair_corr["S_shuffle"])
-# print("mannwhitneyu loRes: ON, ON_shuffle: statistic, pvalue", statistic, pvalue)
 
 
 # save figure
@@ -3245,15 +2842,9 @@ fig = plot_pair_corr(pair_corr, p_pc, color, datasetName, bins=bins,
 
 
 # compare distributions, get p-vale; also compare data vs shuffle
-# statistic, pvalue = ks_2samp(pair_corr_all["S_data"], pair_corr["S_data"])
-# print("KS loRes: all, OFF: statistic, pvalue", statistic, pvalue)
+
 statistic, pvalue = mannwhitneyu(pair_corr_all["S_data"], pair_corr["S_data"])
 print("mannwhitneyu loRes: all, OFF: statistic, pvalue", statistic, pvalue)
-# statistic, pvalue = ks_2samp(pair_corr["S_data"], pair_corr["S_shuffle"])
-# print("KS loRes: OFF, OFF_shuffle: statistic, pvalue", statistic, pvalue)
-# statistic, pvalue = mannwhitneyu(pair_corr["S_data"], pair_corr["S_shuffle"])
-# print("mannwhitneyu loRes: OFF, OFF_shuffle: statistic, pvalue", statistic, pvalue)
-
 
 # save
 figName = "Figure_3/Fig_3_E_loRes_OFF"
@@ -3282,7 +2873,6 @@ p_pc = {}
 p_pc["cutoff_dist"] = [0.0, np.inf] # in µm; [0.05, 1.5]
 p_pc["inverse_PWD"] = True
 p_pc["minDetections"] = 11 # 0-> all, <0 percentil, >0 ratio RTs, >1 num RTs
-# p_pc["step"] = 1 # set independently for all-vs-all, ON, OFF
 p_pc["minRatioSharedPWD"] = 0.5
 p_pc["mode"] = "pair_corr" #L1, L2, RMSD, cos, Canberra, Canberra_mod, pair_corr
 p_pc["numShuffle"] = 10
@@ -3306,14 +2896,8 @@ fig = plot_pair_corr(pair_corr, p_pc, color, datasetName,
 
 
 # compare distributions, get p-vale; also compare data vs shuffle
-# statistic, pvalue = ks_2samp(pair_corr_all["S_data"], pair_corr["S_data"])
-# print("KS hiRes: all, ON: statistic, pvalue", statistic, pvalue)
 statistic, pvalue = mannwhitneyu(pair_corr_all["S_data"], pair_corr["S_data"])
 print("mannwhitneyu hiRes: all, ON: statistic, pvalue", statistic, pvalue)
-# statistic, pvalue = ks_2samp(pair_corr["S_data"], pair_corr["S_shuffle"])
-# print("KS hiRes: ON, ON_shuffle: statistic, pvalue", statistic, pvalue)
-# statistic, pvalue = mannwhitneyu(pair_corr["S_data"], pair_corr["S_shuffle"])
-# print("mannwhitneyu hiRes: ON, ON_shuffle: statistic, pvalue", statistic, pvalue)
 
 
 # save
@@ -3338,14 +2922,8 @@ fig = plot_pair_corr(pair_corr, p_pc, color, datasetName,
 
 
 # compare distributions, get p-vale; also compare data vs shuffle
-# statistic, pvalue = ks_2samp(pair_corr_all["S_data"], pair_corr["S_data"])
-# print("KS hiRes: all, OFF: statistic, pvalue", statistic, pvalue)
 statistic, pvalue = mannwhitneyu(pair_corr_all["S_data"], pair_corr["S_data"])
 print("mannwhitneyu hiRes: all, OFF: statistic, pvalue", statistic, pvalue)
-# statistic, pvalue = ks_2samp(pair_corr["S_data"], pair_corr["S_shuffle"])
-# print("KS hiRes: OFF, OFF_shuffle: statistic, pvalue", statistic, pvalue)
-# statistic, pvalue = mannwhitneyu(pair_corr["S_data"], pair_corr["S_shuffle"])
-# print("mannwhitneyu hiRes: OFF, OFF_shuffle: statistic, pvalue", statistic, pvalue)
 
 
 # save
@@ -3363,10 +2941,6 @@ fig.savefig(fPath+".svg")
 
 # these plots are included in the sections for Fig 3 D, E
 
-
-
-
-
 #%% Fig Supp 3 B, radius of gyration doc loRes, nc14 ON vs OFF (raw data)
 
 cutoff = 1.0 # in µm
@@ -3374,7 +2948,6 @@ minFracNotNaN = 0.33
 
 # minmaxBins = [[13, 21]] # for each TAD: [binStart, binEnd];
 #                         # numpy indexing, thus last bin won't be included
-# listTADs = ["doc TAD"]
 minmaxBins = [[13, 21],
               [ 0, 13]]
 listTADs = ["doc TAD", "TAD1"]
@@ -3450,7 +3023,6 @@ for i, label in enumerate(listRg_labels):
     print(txt)
 
 
-# ax = plt.gca()
 txt = "R_g (raw data), {}\ncutoff={}µm, minFracNotNaN={}"
 ax.set_title(txt.format(listTADs[selTAD], cutoff, minFracNotNaN), fontsize=12)
 ax.set_xticks([0, 1])
@@ -3460,7 +3032,6 @@ ax.set_ylim([0, 0.6])
 
 
 colors = [myColors[2], myColors[3]]
-# colors = [(1,0,0), (0,0,1)] # red, blue
 
 for i in range(len(plots)):
     plots[i]["bodies"][0].set_facecolor(colors[i]) # set_edgecolor(<color>), set_linewidth(<float>), set_alpha(<float>)
@@ -3479,7 +3050,6 @@ fig.savefig(fPath+".svg") # fig.savefig(fPath+".pdf")
 
 
 # TAD1
-#!!! REMOVE FOR PRODUCTION
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4, 6), dpi=150) # default (6.4, 4.8), 72dpi
 
 plots = []
@@ -3502,7 +3072,6 @@ for i, label in enumerate(listRg_labels):
     print(txt)
 
 
-# ax = plt.gca()
 txt = "R_g (raw data), {}\ncutoff={}µm, minFracNotNaN={}"
 ax.set_title(txt.format(listTADs[selTAD], cutoff, minFracNotNaN), fontsize=12)
 ax.set_xticks([0, 1])
@@ -3512,16 +3081,12 @@ ax.set_ylim([0, 0.6])
 
 
 colors = [myColors[2], myColors[3]]
-# colors = [(1,0,0), (0,0,1)] # red, blue
 
 for i in range(len(plots)):
     plots[i]["bodies"][0].set_facecolor(colors[i]) # set_edgecolor(<color>), set_linewidth(<float>), set_alpha(<float>)
     for partname in ("cmeans","cmaxes","cmins","cbars"):
         plots[i][partname].set_edgecolor(colors[i])
         plots[i][partname].set_linewidth(3)
-
-
-
 
 # significance difference in distributions
 list_data = []
@@ -3532,11 +3097,7 @@ for i, label in enumerate(["ON", "OFF"]):
     list_data.append(r_gyration[keep])
 
 
-# statistic, pvalue = ks_2samp(list_data[0], list_data[1])
 statistic, pvalue = mannwhitneyu(list_data[0], list_data[1])
-# statistic, pvalue = ttest_ind(list_data[0], list_data[1], equal_var=False)#, permutations=1000) # needs scipy 1.7
-# statistic, pvalue = cramervonmises_2samp(list_data[0], list_data[1]) # needs scipy 1.7
-
 
 print("statistic {}, pvalue {}".format(statistic, pvalue))
 
@@ -3550,9 +3111,6 @@ minFracNotNaN = 0.33
 
 minmaxBins = [[0, 18]] # for each TAD: [binStart, binEnd];
                         # numpy indexing, thus last bin won't be included
-# minmaxBins = [[ 0, 13],
-#               [13, 21]]
-
 
 
 # load data
@@ -3634,7 +3192,6 @@ ax.set_ylim([0, 0.6])
 
 
 colors = [myColors[2], myColors[3]]
-# colors = [(1,0,0), (0,0,1)] # red, blue
 
 for i in range(len(plots)):
     plots[i]["bodies"][0].set_facecolor(colors[i]) # set_edgecolor(<color>), set_linewidth(<float>), set_alpha(<float>)
@@ -3657,7 +3214,6 @@ fig.savefig(fPath+".svg") # fig.savefig(fPath+".pdf")
  #%% Fig Supp 3 X, population average maps of doc hiRes 17RTs, nc11nc12 and nc14
 
 
-# vmin, vmax = None, None
 vmin, vmax = 0.2, 0.7
 
 datasetName = "doc_wt_nc11nc12_hiRes_17_3D"
@@ -3677,9 +3233,6 @@ pwd_KDE_nc14, _ = calculatesEnsemblePWDmatrix(pwd_sc_nc14, 1, cells2Plot, mode="
 
 
 pwd_KDE_diff = pwd_KDE_nc14 - pwd_KDE_nc11nc12
-
-
-
 
 
 
@@ -3708,7 +3261,6 @@ ax.set_xticks([]); ax.set_yticks([])
 
 ax = axs[1,1]
 ax.set_axis_off()
-# ax.text(0.1, 0.5, datasetName)
 
 
 fig.tight_layout()
@@ -3732,8 +3284,7 @@ minFracNotNaN = 0.33
 
 minmaxBins = [[0, 18]] # for each TAD: [binStart, binEnd];
                         # numpy indexing, thus last bin won't be included
-# minmaxBins = [[ 0, 13],
-#               [13, 21]]
+
 
 
 datasetNames = ["doc_wt_nc11nc12_hiRes_17_3D",
@@ -3796,9 +3347,6 @@ ax.set_xticklabels(listXticks)
 ax.set_xlim([-0.5, 1.5])
 ax.set_ylim([0, 0.6])
 
-
-# color = [1,0,0]
-# colors = ["C1", "C2"]
 colors = [myColors[0], myColors[1]]
 
 for i in range(len(plots)):
@@ -3866,8 +3414,6 @@ label_SNDchan_sorted = label_SNDchan_sorted[sorting]
 
 
 
-# fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(3, 6), dpi=300) # default (6.4, 4.8), 72dpi
-# fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(12.8, 9.6), dpi=300) # default (6.4, 4.8), 72dpi
 fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(20, 16), dpi=300) # default (6.4, 4.8), 72dpi
 
 
@@ -4062,8 +3608,7 @@ for i, (k, v) in enumerate(dictIS_labels):
     err = dictIS[k]["bs_std"]
     ax.fill_between(np.arange(nBarcodes), y-err, y+err,
                     alpha=0.3, edgecolor=None, facecolor=colors[i])
-    # ax.plot(np.arange(nBarcodes), y, "-", color="k",
-    #         linewidth=3, label=None)
+
     ax.plot(np.arange(nBarcodes), dictIS[k]["ens"], "-o", color=colors[i],
             linewidth=2, label=k)
 
@@ -4107,10 +3652,6 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg") # fig.savefig(fPath+".pdf")
-
-
-
-
 
 #%% Fig 4 C, demixing score
 
@@ -4215,16 +3756,6 @@ nNuclei = pwd_sc.shape[2]
 label_SNDchan = dictData[datasetName]["SNDchan"][sc_label+"_"+sc_action]
 
 
-# # convert distance to contact
-# contact_sc = (pwd_sc < distance_threshold)
-# 
-# # count contacts
-# contact_sc_interTAD = contact_sc[0:bin_border, bin_border:, :]
-# contact_sc_interTAD_lin = contact_sc_interTAD.transpose(2,0,1).reshape(nNuclei,-1)
-# 
-# interTAD_sum = np.sum(contact_sc_interTAD_lin, axis=1)
-
-
 # keep only nuclei with at least minNumPWD in inter-TAD region
 pwd_sc_interTAD = pwd_sc[0:bin_border, bin_border:, :]
 pwd_sc_interTAD = pwd_sc_interTAD.transpose(2,0,1).reshape(nNuclei,-1)
@@ -4277,9 +3808,6 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
-
-
-
 
 
 #%% Fig 4 E, higher-order contacts, loRes, nc14 ON vs OFF
@@ -4336,19 +3864,6 @@ for i, sIn in enumerate(sInDict):
     txt = "{}, anchor={}, n={}".format(sIn, "sum all", np.sum(label_SNDchan==sInDict[sIn]))
     plot_map(ax, contact_3way_sc[:,:,i], title=txt, cbar_label=sOut, vmin=vmin, vmax=vmax)
 
-
-# # plot, mixed matrix
-# contact_3way_mixed = get_mixed_mat(contact_3way_sc[:,:,0], contact_3way_sc[:,:,1])
-
-# fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6, 8), dpi=150) # default (6.4, 4.8), 72dpi
-            
-# if (sOut == "Probability"):
-#     vmin, vmax = 0.0, 0.25
-# else:
-#     vmin, vmax = None, None
-
-# txt = "{}, anchor={}".format("OFF\ON", "sum all")
-# plot_map(ax, contact_3way_mixed, title=txt, cbar_label=sOut, vmin=vmin, vmax=vmax)
 
 
 # save
@@ -4511,8 +4026,6 @@ else:
 
 txt = "{}, anchor={}".format("nc11nc12", "sum all")
 plot_map(ax, contact_3way_sc, title=txt, cbar_label=sOut, vmin=vmin, vmax=vmax)
-# ax.set_xticks(np.arange(0, nBarcodes, 2))
-# ax.set_yticks(np.arange(0, nBarcodes, 2))
 ax.set_xticks([])
 ax.set_yticks([])
 
@@ -4624,10 +4137,6 @@ get_XYZ_from_PWD_KDE(pwd_KDE_ON, "test_ON.pdb")
 get_XYZ_from_PWD_KDE(pwd_KDE_OFF, "test_OFF.pdb")
 
 
-
-
-
-
 #%% imputation with dineof (version running on multiple datasets)
 import subprocess
 from scipy.spatial.distance import squareform #, pdist
@@ -4661,7 +4170,6 @@ for i, datasetName in enumerate(datasetNames):
     print("  "+bashCmd)
     process = subprocess.run(bashCmd.split(), cwd=pathDINEOF,
                              text=True, capture_output=True)
-    # print(process.stdout)
     
     
     # ============================
@@ -4674,7 +4182,6 @@ for i, datasetName in enumerate(datasetNames):
     # set negative PWD to zero, calc mean and sdev
     results[results<0] = 0
     result = np.median(results, axis=2)
-    # result[result<0] = 0
     
     results_sdev = np.std(results, axis=2)
     
@@ -4750,135 +4257,6 @@ for i, datasetName in enumerate(datasetNames):
     dictData[datasetName]["pwd_sc_imputed"] = pwd_sc_imputed
     dictData[datasetName]["imputation:minDetections"] = minDetections
 
-
-
-
-
-# #%% imputation with dineof (version running on one dataset)
-
-# import subprocess
-# from scipy.spatial.distance import squareform #, pdist
-
-
-
-# datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
-# # datasetName = "doc_wt_nc11nc12_loRes_20_perROI_3D"
-
-# pwd_sc = get_sc_pwd(dictData, datasetName)
-
-
-# # filter cells with high number of missing barcodes
-# minDetections = 13
-# keep_1_minDet = filter_by_detected_barcodes(pwd_sc, minDetections)
-# pwd_sc = pwd_sc[:, :, keep_1_minDet]
-
-# #%%
-# # make linear
-# pwd_sc_lin = get_mat_linear(pwd_sc)
-
-
-# # save as text file
-# pathDINEOF = "./dineof"
-# createDir(pathDINEOF, 0o775)
-# np.savetxt("./dineof/PWD_test.txt", pwd_sc_lin, delimiter="\t")
-
-# # run imputation (bottleneck, could be done parallel)
-# nSeeds = 20
-# print("Going to run imputation...")
-# bashCmd = "Rscript ../0_dineof_210801.R PWD_test.txt {}".format(nSeeds)
-# print("  "+bashCmd)
-# process = subprocess.run(bashCmd.split(), cwd=pathDINEOF,
-#                          text=True, capture_output=True)
-# # print(process.stdout)
-
-
-# #%%
-# # load imputed files
-# # nSeeds = 10
-# results = np.empty((pwd_sc_lin.shape[0], pwd_sc_lin.shape[1], nSeeds))
-# for seed in range(nSeeds):
-#     fn = "./dineof/PWD_test_rms1e-5_seed{}_dineof.txt".format(seed+1)
-#     results[:,:, seed] = np.loadtxt(fn, delimiter="\t")
-
-# # set negative PWD to zero, calc mean and sdev
-# results[results<0] = 0
-# result = np.median(results, axis=2)
-# # result[result<0] = 0
-
-# results_sdev = np.std(results, axis=2)
-
-# # filter cells with too many unstable imputations
-# sdev_thresh = np.quantile(results_sdev[results_sdev > 0], 0.99)
-# nStable = np.sum(results_sdev < sdev_thresh, axis=1)
-# keep_2_nStable = nStable > pwd_sc_lin.shape[1]*0.9
-
-# pwd_sc_imputed = np.array(list(map(squareform, result[keep_2_nStable,:])))
-# pwd_sc_imputed = np.transpose(pwd_sc_imputed, axes=[1, 2, 0])
-
-# # set diagonal to NaN
-# idx = np.arange(pwd_sc_imputed.shape[0])
-# pwd_sc_imputed[idx, idx, :] = np.NaN
-
-
-# #%%
-
-# # calculate the KDE for the raw data (filtered for minDetections), imputed
-# PWDs = [pwd_sc, pwd_sc_imputed]
-# KDEs = []
-
-# for i in range(len(PWDs)):
-#     cells2Plot = [True]*PWDs[i].shape[2]
-#     # pwd = np.transpose(PWDs[i], axes=[1, 2, 0])
-#     kde, _ = calculatesEnsemblePWDmatrix(PWDs[i], 1, cells2Plot, mode="KDE")
-#     # kde[np.identity(nLoci, dtype=bool)] = np.NaN # set diagonal to NaN
-#     KDEs.append(kde)
-
-# #%%
-# # plot
-
-# vmin, vmax = 0.3, 0.8
-# vmin_diff, vmax_diff = -0.1, 0.1
-# vmin_sdev, vmax_sdev = 1, 3
-
-# fig, axs = plt.subplots(nrows=2, ncols=3)
-
-# # KDE before imputation, filtered for minDetection
-# ax = axs[0,0]
-# plot_map(ax, KDEs[0], cmap=cm_map, vmin=vmin, vmax=vmax)
-# ax.set_title("raw, N={}".format(PWDs[0].shape[2]))
-
-# # KDE after imputation
-# ax = axs[0,1]
-# plot_map(ax, KDEs[1], cmap=cm_map, vmin=vmin, vmax=vmax)
-# ax.set_title("imputed, N={}".format(PWDs[1].shape[2]))
-
-# # KDE diff map
-# ax = axs[0,2]
-# plot_map(ax, KDEs[0]-KDEs[1], cmap="bwr", vmin=vmin_diff, vmax=vmax_diff)
-# ax.set_title("raw-imputed")
-
-# # sdev before imputation
-# ax = axs[1,0]
-# plot_map(ax, np.nanstd(pwd_sc, axis=2), vmin=vmin_sdev, vmax=vmax_sdev)
-# ax.set_title("pwd sdev raw")
-
-# # sdev after imputation
-# ax = axs[1,1]
-# plot_map(ax, np.nanstd(pwd_sc_imputed, axis=2), vmin=vmin_sdev, vmax=vmax_sdev)
-# ax.set_title("pwd sdev imputed")
-
-# # histogram sdev
-# ax = axs[1,2]
-# ax.hist(results_sdev.flatten(), log=True)
-# ax.set_title("sdev seeds")
-
-# fig.tight_layout()
-
-
-# #%% save to dictData
-
-# dictData[datasetName]["pwd_sc_imputed"] = pwd_sc_imputed
-# dictData[datasetName]["imputation:minDetections"] = minDetections
 
 
 
