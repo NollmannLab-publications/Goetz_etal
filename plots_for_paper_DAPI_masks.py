@@ -7,9 +7,6 @@ Created on Fri Jun 25 10:54:37 2021
 """
 
 
-#TODO figure out how to best get dictData
-
-
 #%% IMPORTS
 
 import os
@@ -19,7 +16,7 @@ import re
 import copy
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap #, LinearSegmentedColormap
+from matplotlib.colors import ListedColormap
 from astropy.table import Table
 from stardist import random_label_cmap
 
@@ -189,7 +186,6 @@ def get_ROI(dictData, datasetName, numFolder, numROI):
 
 #%% load masks and sc PWD maps for this ROI, plot
 
-# datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
 datasetName = "doc_wt_nc14_hiRes_17_3D"
 
 
@@ -253,18 +249,13 @@ for cellID in cellID_OFF:
     mask_DAPI_SND[mask] = 1
 
 
-
-#TODO use myColors
-# cmap = ListedColormap([[1,1,1], [0.5,0.5,0.5], [1,0,0]])
 cmap = ListedColormap([[1,1,1,1], [0.25,0.25,0.75,0.5], [1,0,0,1]]) # background, OFF, ON
 
-# fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(8, 6), dpi=150) # default (6.4, 4.8), 72dpi
-fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(4, 5), dpi=300) # default (6.4, 4.8), 72dpi
+fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(4, 5), dpi=300)
 
 ax = axs
 plot = ax.matshow(mask_DAPI_SND, cmap=cmap)
 cbar = plt.colorbar(plot, ax=ax, fraction=0.046, pad=0.04, ticks=[1, 1.66])
-# cbar.set_label("Rg (µm)")
 cbar.ax.set_yticklabels(["OFF", "ON"])
 
 ax.set_title("numEmb {}, numROI {}".format(numEmb, numROI), fontsize=12)
@@ -332,7 +323,6 @@ else:
 
 
 # fill in missing values with population avg
-# datasetName = "doc_wt_nc14_loRes_20_perROI_3D"
 pwd_sc = get_sc_pwd(dictData, datasetName)
 pwd_sc_KDE = dictData[datasetName]["KDE"]
 
@@ -397,8 +387,7 @@ for i, cellID in enumerate(cellID_ROI_keep):
     # mask_DAPI_Rg[mask,:] = [1, 0.65, 0.0] # orange
     mask_DAPI_Rg[mask,:] = cmap(Rg_norm[i])[0:3] # cmap retruns rgba (thus including alpha)
 
-# fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(8, 6), dpi=150) # default (6.4, 4.8), 72dpi
-fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(4, 5), dpi=300) # default (6.4, 4.8), 72dpi
+fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(4, 5), dpi=300)
 ax = axs
 plot = ax.matshow(mask_DAPI_Rg, cmap=cmap, vmin=0, vmax=1)
 cbar = plt.colorbar(plot, ax=ax, fraction=0.046*2, pad=0.04, ticks=[0, 1])
@@ -421,54 +410,4 @@ pathFigDir = os.path.dirname(fn)
 createDir(pathFigDir, 0o755)
 fig.savefig(fn+".svg")
 
-
-#%%
-
-basePath = "/mnt/tronador/Sergio/RAMM_experiments/Experiment_1/2019_10_30/deconvolved_DAPI/005_Embryo/"
-
-# folder = "zProject"
-folder = "alignImages"
-fName = "scan_002_DAPI_011_ROI_converted_decon_ch01_2d_registered.npy"
-
-img_RNA_2D = np.load(os.path.join(basePath, folder, fName))
-
-# fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(8, 6), dpi=150) # default (6.4, 4.8), 72dpi
-fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(4, 5), dpi=300) # default (6.4, 4.8), 72dpi
-
-ax = axs
-plot = ax.matshow(img_RNA_2D, cmap="gray_r", clim=(5e3, 100e3))
-
-ax.set_title("numEmb {}, numROI {}".format(numEmb, numROI), fontsize=12)
-
-
-ax.set_xlim(100,1110)
-ax.set_ylim(100,1900)
-
-ax.set_xticks([])
-ax.set_yticks([])
-
-
-
-#%% use raw 3D stack, get MAX - MEDIAN
-from skimage import io
-
-
-
-fName = "scan_002_DAPI_011_ROI_converted_decon_ch01.tif"
-img_RNA_3D = io.imread(os.path.join(basePath, fName))
-
-img_RNA_2D_max = np.max(img_RNA_3D, axis=0)
-img_RNA_2D_med = np.median(img_RNA_3D, axis=0)
-
-img_RNA_2D_clean = img_RNA_2D_max - img_RNA_2D_med
-#%%
-fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(4, 5), dpi=300) # default (6.4, 4.8), 72dpi
-
-ax = axs
-plot = ax.matshow(img_RNA_2D_clean, cmap="gray_r", clim=(00, 4e3))
-
-# full image
-ax.invert_yaxis()
-ax.set_xticks([])
-ax.set_yticks([])
 

@@ -1885,7 +1885,7 @@ fig.savefig(fPath+".svg")
 
 #%% Fig 3 C, nuclei colorcoded by radius of gyration
 
-# see separate script plots_for_paper_DAPI_masks_210625.py
+# see separate script plots_for_paper_DAPI_masks.py
 
 
 #%% Fig 3 D, top, population average maps of doc loRes 20RTs, ON vs OFF
