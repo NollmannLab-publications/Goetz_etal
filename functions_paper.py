@@ -14,8 +14,11 @@ import numpy as np
 from scipy.spatial.distance import pdist,squareform
 import matplotlib.pyplot as plt
 from matplotlib import transforms
+import seaborn as sns
 from tqdm import trange
 import umap
+import anndata
+import scanpy as sc
 
 from HIMmatrixOperations import calculatesEnsemblePWDmatrix
 
@@ -31,7 +34,6 @@ def createDir(dirPath, permission=0o755):
         except OSError:
             print("Creation of the directory failed.")
     else:
-        # print("")
         pass
 
 
@@ -70,8 +72,6 @@ def load_sc_data(dictData, datasetName):
     
     pwd_sc_raw = np.load(fpath)
     dictData[datasetName]["pwd_sc_raw"] = pwd_sc_raw
-    
-    # return dictData
 
 
 
@@ -79,7 +79,6 @@ def load_sc_data(dictData, datasetName):
 
 def load_sc_data_info(dictData, datasetName):
     import json, re
-    # sc_label="doc"; sc_action="all"
     
     embryos2Load = dictData[datasetName]["embryos2Load"]
     
@@ -148,7 +147,6 @@ def load_SNDchan(dictData, datasetName, sc_label, sc_action):
     
     
     label_SNDchan = np.load(fn)
-    # label_SNDchan = (sel_SNDchan == 1)
     print("Loaded SClabeledCollated.npy from ", fn)
     
     return label_SNDchan
@@ -168,7 +166,6 @@ def load_sc_data_Bintu(dictData, datasetName):
     chromosomes = data[:,0]
     nchr = len(np.unique(chromosomes))
     zxys = data[:,2:].reshape([nchr,-1,3])
-    # print(zxys.shape)
     
     pwd_sc_raw = np.array(list(map(squareform,map(pdist,zxys))))
     pwd_sc_raw = np.transpose(pwd_sc_raw, axes=[1,2,0])
@@ -222,8 +219,6 @@ def get_num_detected_barcodes(pwd_sc):
 
 def get_subrange(pwd_sc, xy_start=None, xy_stop=None, xy_step=None):
     # zero-based indices of the matrix
-
-    
     if (xy_start is None):
         xy_start = 0
     if (xy_stop is None):
@@ -404,7 +399,6 @@ def fill_missing(PWD_sc, pwd_sc_full_data=None, minMissing=None, maxMissing=None
         if (nCells_corrected < 2000):
             cells2Plot = [True]*pwd_sc_full_data.shape[2]
         else:
-            # target_num_cells = 200
             target_num_cells = 50000/nBarcodes
             step = round(nCells_corrected/target_num_cells)
             step = max(step, 1) # make sure step is >= 1
@@ -438,7 +432,6 @@ def fill_missing(PWD_sc, pwd_sc_full_data=None, minMissing=None, maxMissing=None
     
     keep1 = (missing_barcodes >= minMissing)
     keep2 = (missing_barcodes <= maxMissing)
-    # sel = sel1 * sel2
     keep = keep1 * keep2 * keepPattern
     
     pwd_sc_lin = pwd_sc_lin[keep,:]
@@ -588,18 +581,14 @@ def get_similarity_sc_distMap(PWD, minRatioSharedPWD=0.2, distNorm=False,
     
     
     for i in trange(numNuc):
-        # sc1 = PWD[:,:,i][mask]
         sc1 = PWD_lin[:,i]
         sc1_isnan = np.isnan(sc1)
         
-        # for j in range(i+1, PWD.shape[2]):
         for j in range(i+1, numNuc):
 
             sc2 = PWD_lin[:,j]
             sc2_isnan = np.isnan(sc2)
             
-            
-            # mask_not_nan = ((~sc1_isnan) & (~sc2_isnan))
             mask_not_nan  = ~np.logical_or(sc1_isnan, sc2_isnan)
             ratioSharedPWD = np.sum(mask_not_nan)/numPWD
             
@@ -612,7 +601,6 @@ def get_similarity_sc_distMap(PWD, minRatioSharedPWD=0.2, distNorm=False,
                 for _ in range(numIters):
                     if doShuffle:
                         np.random.shuffle(sc2_not_nan) # shuffle in place
-                        # sc2_not_nan = sc2[mask_not_nan][::-1]
                     
                     if (mode == "pair_corr"):
                         s = np.corrcoef(sc1_not_nan, sc2_not_nan)[0,1]
@@ -630,7 +618,7 @@ def get_similarity_sc_distMap(PWD, minRatioSharedPWD=0.2, distNorm=False,
                         b = np.sqrt(np.sum(np.square(sc1_not_nan)))
                         c = np.sqrt(np.sum(np.square(sc2_not_nan)))
                         s = a/(b*c)
-                    elif (mode == "Canberra"): #known to be very sensitive to small changes near zero
+                    elif (mode == "Canberra"): #known to be sensitive to small changes near zero
                         d = np.abs(sc1_not_nan - sc2_not_nan)
                         su = sc1_not_nan + sc2_not_nan
                         s = np.sum(d/su)
@@ -926,7 +914,7 @@ def plot_representative_sc(datasetName, listShowSC, PWD_sc, pwd_KDE,
     
     if (showAll == False):
         # show only the sc PWDs from listShowSC and also the ensemble avg (KDE)
-        fig, axs = plt.subplots(nrows=1, ncols=7, figsize=(8, 6), dpi=300) # default (6.4, 4.8), 72dpi
+        fig, axs = plt.subplots(nrows=1, ncols=7, figsize=(8, 6), dpi=300)
         
         for i in range(5):
             ax = axs[i]
@@ -934,13 +922,11 @@ def plot_representative_sc(datasetName, listShowSC, PWD_sc, pwd_KDE,
             plot = ax.matshow(pwd_sc[:,:,currNuc], cmap=cmap, vmin=vmin_sc, vmax=vmax_sc)
             cbar = plt.colorbar(plot, ax=ax, fraction=0.046, pad=0.04,
                                 ticks=[vmin_sc, vmax_sc], orientation="horizontal")
-            # cbar.set_label("Distance (µm)")
             ax.set_xticks([])
             ax.set_yticks([])
             ax.set_title("{}".format(currNuc))
         
         ax = axs[5]
-        # ax.axis("off")
         ax.set_visible(False)
         
         ax = axs[6]
@@ -1175,7 +1161,7 @@ def plot_pair_corr(pair_corr, p_pc, color, datasetName, bins=None,
     
     # bin location and width
     if bins is None:
-        bins = np.linspace(-1,1,51) # None, np.linspace(-1,1,51)
+        bins = np.linspace(-1,1,51)
     
     
     # settings for hist
@@ -1184,7 +1170,7 @@ def plot_pair_corr(pair_corr, p_pc, color, datasetName, bins=None,
     
     
     # create figure
-    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=figsize, dpi=150) # default (6.4, 4.8), 72dpi
+    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=figsize, dpi=150)
     ax = axs
     
     
@@ -1209,7 +1195,7 @@ def plot_pair_corr(pair_corr, p_pc, color, datasetName, bins=None,
     shuffle_sdev = np.nanstd(S_shuffle)
     
     if yLim is None:
-        yLim = 1.05*np.max([h1[0], h3[0]]) # yMax = np.max([h1[0], h2[0]])
+        yLim = 1.05*np.max([h1[0], h3[0]])
     
     h2 = ax.fill_between([shuffle_mean-shuffle_sdev, shuffle_mean+shuffle_sdev],
                          [yLim, yLim], color=[0.4, 0.4, 0.4], label="shuffle")
@@ -1255,24 +1241,60 @@ def plot_pair_corr(pair_corr, p_pc, color, datasetName, bins=None,
     
     ax.set_title(txt, fontsize=12)
     
-    # fig.tight_layout()
-    
     return fig
 
 
 
 
 
-def plot_scatter_Rg(ax, dictRg, datasetName, param_Rg, color=None, cross=None):
+def plot_scatter_Rg(ax, dictRg, datasetName, param_Rg, getRegLine=False,
+                    color=None, cross=None):
+    """
+    Create a scatter plot for radius of gyration data.
+
+    Parameters
+    ----------
+    ax : matplotlib Axes
+        The Axes object containing the plot.
+    dictRg : dict
+        Dictionary that hold the Rg data.
+    datasetName : str
+        Name of the dataset to plot. Serves as key for dictRg
+    param_Rg : dict
+        Dictionary that hold the parameters used to calculate the Rg.
+    getRegLine : bool, optional
+        Flag to control plotting of a regression line with confidence interval.
+        The default is False.
+    color : matplotlib color, optional
+        Color information for the plot. The default is None.
+    cross : list, optional
+        List with options controling the plotting of crosshairs. The default is None.
+
+    Returns
+    -------
+    None.
+
+    """
     
     # get parameter
     fillMode = param_Rg["fillMode"]
     cutoff = param_Rg["cutoff"]
     minFracNotNaN = param_Rg["minFracNotNaN"]
     
+    # axis limits (need to be set before sns.regplot to get truncation right)
+    ax.set_xlim(0.25, 0.45)
+    ax.set_ylim(0.20, 0.40)
+    ax.set_aspect("equal")
+    
+    
     # get radius of gyration
     r_gyration = dictRg[datasetName]
-    ax.scatter(r_gyration[:,0], r_gyration[:,1], s=10, color=color)
+    if not getRegLine:
+        ax.scatter(r_gyration[:,0], r_gyration[:,1], s=10, color=color)
+    else:
+        sns.regplot(x=r_gyration[:,0], y=r_gyration[:,1], truncate=False,
+                    color=color, scatter_kws={"s": 10}, ax=ax)
+    
     
     # plot horizontal and vertical line through center
     if cross is not None:
@@ -1287,10 +1309,6 @@ def plot_scatter_Rg(ax, dictRg, datasetName, param_Rg, color=None, cross=None):
     txt = txt.format(datasetName, fillMode, cutoff, minFracNotNaN)
     ax.set_title(txt, fontsize=12)
     
-    ax.set_xlim(0.25, 0.45)
-    ax.set_ylim(0.20, 0.40)
-    ax.set_aspect("equal")
-    
     
     # Pearson corr coef all data
     v0 = r_gyration[:,0]
@@ -1299,7 +1317,8 @@ def plot_scatter_Rg(ax, dictRg, datasetName, param_Rg, color=None, cross=None):
     skip = np.isnan(v0+v1)
     
     pearson_corrcoef = np.corrcoef(v0[~skip], v1[~skip])[0,1]
-    print("pearson_corrcoef {}: {:.6f}".format(datasetName, pearson_corrcoef))
+    txt = "pearson_corrcoef {}: {:.6f}, for n={}"
+    print(txt.format(datasetName, pearson_corrcoef, np.sum(~skip)))
     
     ax.text(0.1, 0.9, "r={:.2f}".format(pearson_corrcoef), transform=ax.transAxes)
 
@@ -1307,7 +1326,7 @@ def plot_scatter_Rg(ax, dictRg, datasetName, param_Rg, color=None, cross=None):
 
 
 
-def plot_scatter_UMAP(dictUMAP_data, cmap, ax=None, hideTicks=False):
+def plot_scatter_UMAP(dictUMAP_data, cmap, ax=None, hideTicks=False, pntS=25):
     embedding = dictUMAP_data["embedding"]
     classNum = dictUMAP_data["classNum"]
     classes = dictUMAP_data["classes"]
@@ -1331,9 +1350,8 @@ def plot_scatter_UMAP(dictUMAP_data, cmap, ax=None, hideTicks=False):
         fig = None
     
     plot = ax.scatter(embedding[:,0], embedding[:,1],
-                      s=10, c=classNum, cmap=cmap, alpha=1.0)
+                      s=pntS, c=classNum, cmap=cmap, alpha=1.0)
     
-    # ax.legend(handles=plot.legend_elements()[0], labels=list(classes))
     ax.legend(handles=plot.legend_elements()[0], labels=list(classes),
               loc="upper left", bbox_to_anchor=(1,1))
     
@@ -1358,3 +1376,178 @@ def plot_scatter_UMAP(dictUMAP_data, cmap, ax=None, hideTicks=False):
 
 
 
+
+def get_leiden_cluster(dictUMAP, keyDict, resolution, cm_map):
+    # get everything needed from dictUMAP
+    pwd_sc_lin_cat = dictUMAP[keyDict]["pwd_sc_lin_cat"]
+    embedding = dictUMAP[keyDict]["embedding"]
+    
+    adata = anndata.AnnData(embedding)
+    n_neighbors = dictUMAP[keyDict]["p"]["n_neighbors"]
+    
+    sc.pp.neighbors(adata, n_neighbors, n_pcs=0, metric="euclidean")
+    
+    sc.tl.louvain(adata, flavor="igraph") # flavor as vtraag Louvain not installed?
+    sc.tl.leiden(adata, resolution=resolution)
+    
+    # subgroup ID for each sample is now in adata.obs[cluster_method]
+    cluster_method = "leiden" # louvain, leiden
+    cluster_ID = adata.obs[cluster_method].astype("int")
+    
+    unique_cluster, counts = np.unique(cluster_ID, return_counts=True) # sorted unique elements
+    num_cluster = len(unique_cluster)
+    
+    dictUMAP[keyDict]["cluster_method"] = [cluster_method]
+    dictUMAP[keyDict][cluster_method] = {}
+    dictUMAP[keyDict][cluster_method]["cluster_ID"] = cluster_ID
+    
+    print("Found %d classes, with counts" % num_cluster)  
+    print(list(counts))
+    
+    
+    # --- plot UMAP scatter ---
+    pntS = 25
+    
+    fig1, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 10), dpi=150) # default (6.4, 4.8), 72dpi
+    fig1.subplots_adjust(right=0.85) # make some space on the right for the cbar label
+                                    # keep the same as for Fig. 2E
+    
+    plot = ax.scatter(embedding[:,0], embedding[:,1],
+                      s=pntS, c=cluster_ID, cmap="tab20", alpha=1.0)
+    
+    txt = "%s, UMAP n_neigh=%d, n_comp=%d, KNN n_neigh=%d"
+    txt = txt % (cluster_method, dictUMAP[keyDict]["p"]["n_neighbors"],
+                 dictUMAP[keyDict]["p"]["n_components"], n_neighbors)
+    txt += ", resolution={}".format(resolution)
+    ax.set_title(txt, fontsize=12)
+    
+    
+    ax.legend(handles=plot.legend_elements()[0],
+              labels=list(unique_cluster),
+              )
+    
+    # --- plot Rg (top) and IS (bottom) ---
+    pwd_sc_cat = get_mat_square(pwd_sc_lin_cat)
+    
+    if keyDict == "loRes":
+        # settings Rg
+        cutoff_Rg = 1.0 # in µm
+        minFracNotNaN = 0.33
+        minBin = 13
+        maxBin = 21 # numpy indexing, thus last bin won't be included
+        # settings IS
+        cutoff_IS = 0.075 # in µm
+        bin_border = 13 # doc: 13, bintu: 49 (zero-based)
+        invertPWD = True
+        sqSize = 2
+    elif keyDict == "Bintu":
+        # settings Rg
+        cutoff_Rg = 1.0 # in µm
+        minFracNotNaN = 0.33
+        minBin = 49
+        maxBin = 83 # numpy indexing, thus last bin won't be included
+        # settings IS
+        cutoff_IS = 0.075 # in µm
+        bin_border = 49 # doc: 13, bintu: 49 (zero-based)
+        invertPWD = True
+        sqSize = 5
+    else:
+        raise SystemExit("Unexpected value for variable keyDict.")
+    
+    
+    
+    
+    plots0 = []
+    plots1 = []
+    
+    fig2, axs = plt.subplots(nrows=2, ncols=1, figsize=(8.5, 7.5), dpi=150) # default (6.4, 4.8), 72dpi
+    
+    for i in range(num_cluster):
+        curr_cluster = unique_cluster[i]
+        sel = (cluster_ID == curr_cluster)
+        curr_pwd_sc = pwd_sc_cat[:,:,sel]
+        
+        pwd_sc_Rg = curr_pwd_sc.copy()
+        pwd_sc_Rg = pwd_sc_Rg[minBin:maxBin,minBin:maxBin,:]
+        pwd_sc_Rg[pwd_sc_Rg>cutoff_Rg] = np.NaN
+        
+        pwd_sc_IS =  curr_pwd_sc.copy()
+        if invertPWD:
+            pwd_sc_IS[pwd_sc_IS<cutoff_IS] = cutoff_IS
+            pwd_sc_IS = 1/pwd_sc_IS
+        
+        num_nuclei = curr_pwd_sc.shape[2]
+        Rg_IS = np.full((num_nuclei, 3), np.NaN) # columns for Rg, IS, curr_cluster
+        for iNuc in range(num_nuclei):
+            Rg_IS[iNuc, 0] = get_Rg_from_PWD(pwd_sc_Rg[:,:,iNuc], minFracNotNaN)
+            Rg_IS[iNuc, 1] = get_insulation_score(pwd_sc_IS[:,:,iNuc], sqSize,
+                                                  False, False)[bin_border]
+            Rg_IS[iNuc, 2] = curr_cluster
+        
+        ax = axs[0]
+        sel_notNaN = ~np.isnan(Rg_IS[:,0])
+        plot = ax.violinplot(Rg_IS[sel_notNaN,0], [curr_cluster], showmeans=True)
+        plots0 += [plot]
+        ax = axs[1]
+        plot = ax.violinplot(Rg_IS[:,1], [curr_cluster], showmeans=True)
+        plots1 += [plot]
+        
+        # keep Rg_IS for saving to npy later
+        if i == 0:
+            Rg_IS_all = Rg_IS
+        else:
+            Rg_IS_all = np.concatenate((Rg_IS_all, Rg_IS), axis=0)
+    
+    ax = axs[0]
+    txt = "R_g, cutoff={}, minFracNotNaN={}, minBin={}, maxBin={}"
+    txt = txt.format(cutoff_Rg, minFracNotNaN, minBin, maxBin)
+    ax.set_title(txt, fontsize=12)
+    
+    ax = axs[1]
+    txt = "IS, cutoff={}, bin_border={}, invertPWD={}, sqSize={}"
+    txt = txt.format(cutoff_IS, bin_border, invertPWD, sqSize)
+    ax.set_title(txt, fontsize=12)
+    
+    # match colors of violin plots
+    tab20 = plt.get_cmap("tab20", num_cluster)
+    colors = [tab20(i) for i in unique_cluster]
+    
+    
+    for i in range(len(plots0)):
+        plots0[i]["bodies"][0].set_facecolor(colors[i])
+        for partname in ("cmeans","cmaxes","cmins","cbars"):
+            plots0[i][partname].set_edgecolor(colors[i])
+        plots1[i]["bodies"][0].set_facecolor(colors[i])
+        for partname in ("cmeans","cmaxes","cmins","cbars"):
+            plots1[i][partname].set_edgecolor(colors[i])
+    
+    
+    PLOT_PWD_MAPS = False
+    n_per_row = 7
+    
+    if PLOT_PWD_MAPS:
+        if keyDict == "loRes":
+            vmin, vmax = 0.3, 0.8
+        elif keyDict == "Bintu":
+            vmin, vmax = 0.2, 0.8
+        
+        nrows = round(np.ceil(num_cluster/n_per_row))
+        
+        fig, axs = plt.subplots(nrows=nrows, ncols=n_per_row, figsize=(10, 5), dpi=150) # default (6.4, 4.8), 72dpi
+        for i in range(num_cluster):
+            curr_cluster = unique_cluster[i]
+            sel = (cluster_ID == curr_cluster)
+            curr_pwd_sc = pwd_sc_cat[:,:,sel]
+            
+            ax = fig.axes[i]
+            cells2Plot = [True]*curr_pwd_sc.shape[2]
+            pwd_sc_KDE, _ = calculatesEnsemblePWDmatrix(curr_pwd_sc, 1, cells2Plot,
+                                                        mode="KDE")
+            ax.imshow(pwd_sc_KDE, cmap=cm_map, vmin=vmin, vmax=vmax)
+            ax.axis("off")
+            ax.set_title(i, fontsize=12)
+        for i in range(num_cluster, nrows*n_per_row):
+            ax = fig.axes[i]
+            ax.axis("off")
+    
+    return fig1, fig2, Rg_IS_all
