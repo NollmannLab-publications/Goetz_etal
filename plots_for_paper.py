@@ -56,7 +56,9 @@ if "dictUMAP" not in locals():
 
 # paths
 PDFpath = "./PDFs"
+SDpath = "./SourceData"
 createDir(PDFpath, 0o755)
+createDir(SDpath, 0o755)
 
 
 dataSets = {
@@ -122,7 +124,7 @@ for i, datasetName in enumerate(dataSets.keys()):
     
     # save KDE as npy
     fName = "Figure_1/Fig_1_B_" + dataSets[datasetName]["short"] + ".npy"
-    fPath = os.path.join(PDFpath, fName)
+    fPath = os.path.join(SDpath, fName)
     pathFigDir = os.path.dirname(fPath)
     createDir(pathFigDir, 0o755)
     np.save(fPath, pwd_KDE)
@@ -266,6 +268,14 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
+# save pair_corr as npy
+fName = "Figure_1/Fig_1_D_"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath + "data.npy", pair_corr["S_data"])
+np.save(fPath + "shuffle.npy", pair_corr["S_shuffle"])
+
 
 #%% Fig 1 E (top), representative sc maps, doc_wt_nc14_loRes_20_perROI_3D
 
@@ -316,6 +326,7 @@ p_pc["numShuffle"] = 10
 # run pair corr
 pair_corr = get_pair_corr(pwd_sc, p_pc)
 
+S_data = pair_corr["S_data"]
 
 # plot histogram
 color = myColors[1] #"C2"
@@ -333,6 +344,14 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
+
+# save pair_corr as npy
+fName = "Figure_1/Fig_1_E_"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath + "data.npy", pair_corr["S_data"])
+np.save(fPath + "shuffle.npy", pair_corr["S_shuffle"])
 
 
 #%% Fig 1 G, UMAP Bintu data, run UMAP
@@ -366,6 +385,16 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
+
+# save embedding as npy
+embedding = dictUMAP[keyDict]["embedding"]
+classNum = dictUMAP[keyDict]["classNum"]
+xyc = np.concatenate((embedding, classNum[:,None]), axis=1)
+fName = "Figure_1/Fig_1_G.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, xyc)
 
 
 #%% Fig 1 G, H revision, UMAP Bintu data, run UMAP; add density
@@ -549,6 +578,16 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
+
+# save embedding as npy
+embedding = dictUMAP[keyDict]["embedding"]
+classNum = dictUMAP[keyDict]["classNum"]
+xyc = np.concatenate((embedding, classNum[:,None]), axis=1)
+fName = "Figure_1/Fig_1_I.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, xyc)
 
 
 #%% Fig 1 I revision, UMAP loRes nc11nc12 vs nc14; add density
@@ -742,6 +781,13 @@ for i, datasetName in enumerate(datasetNames):
     else:
         ax.set_title("Unknown.")
     
+    # save npy
+    fName = "Figure_1/Supp_Fig_1_B_" + dataSets[datasetName]["short"] + "_detection_eff.npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, np.stack((np.arange(numBarcodes)+1, eff), axis=1))
+
 
 fig.tight_layout()
 
@@ -797,6 +843,12 @@ for i, datasetName in enumerate(datasetNames):
     else:
         ax.set_title("Unknown.")
     
+    # save npy
+    fName = "Figure_1/Supp_Fig_1_B_" + dataSets[datasetName]["short"] + "_barcodes_per_nuc.npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, bc_per_cell)
 
 fig.tight_layout()
 
@@ -901,6 +953,13 @@ for i, datasetName in enumerate(datasetNames):
     plots += [plot]
     listXticks.append("{}\nn={}".format(strDataset, np.sum(keep)))
     listMeans.append(np.mean(r_gyration[keep, 0]))
+
+    # save npy
+    fName = "Figure_1/Supp_Fig_1_E_" + dataSets[datasetName]["short"] + "_Rg.npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, r_gyration[:, 0])
 
 
 txt = "R_g (raw data)\ncutoff={}µm, minFracNotNaN={}\n"
@@ -1099,6 +1158,13 @@ for i, datasetName in enumerate(datasetNames):
                                                      minFracNotNaN=minFracNotNaN)
     
     dictRg[datasetName] = r_gyration
+    
+    # save npy
+    fName = "Figure_2/Fig_2_A_" + dataSets[datasetName]["short"] + "_Rg_TAD1_docTAD.npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, r_gyration)
 
 
 # collect parameters
@@ -1229,6 +1295,13 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
+# save npy
+fName = "Figure_2/Fig_2_B.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, np.concatenate((embedding[sel_Rg, :], r_gyration[sel_Rg, None]), axis=1))
+
 
 #%% Fig 2 C, D, sc insulation score nc11/nc12 vs nc14
 
@@ -1327,6 +1400,13 @@ for iData, datasetName in enumerate(dataSets.keys()):
     ax.set_title("{}. NaNs filled with {}".format(datasetName, fillMode),
                  fontsize=12)
     
+    # save npy
+    fName = "Figure_2/Fig_2_C_D_" + dataSets[datasetName]["short"] + "_IS_matrix.npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, insulation_score_sorted)
+    
     
     # --- Figure 2 ---
     # also get a bar graph of the insulation score profile
@@ -1377,6 +1457,13 @@ for iData, datasetName in enumerate(dataSets.keys()):
     axs3.set_xlabel("IS cutoff")
     axs3.set_ylabel("Fraction of nuclei with an IS at\nthe border barcode below cutoff")
     axs3.legend([dataSets[d]["short"] for d in dataSets])
+    
+    # save npy
+    fName = "Figure_2/Supp_Fig_2_A_" + dataSets[datasetName]["short"] + ".npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, np.stack((cutoff_IS, r_below), axis=1))
 
 
 # save all three figures
@@ -1508,6 +1595,17 @@ for iData, datasetName in enumerate(datasetNames):
         txt = "{}\nNaNs filled with{}\nbins={}"
         ax.set_title(txt.format(datasetName, fillMode, minmaxBins[strTAD]),
                      fontsize=12)
+        
+        # save npy
+        if strTAD == "TAD1":
+            fName = "Figure_2/Supp_Fig_2_B_"
+        else:
+            fName = "Figure_2/Fig_2_E_"
+        fName = fName + dataSets[datasetName]["short"] + "_" + strTAD + ".npy"
+        fPath = os.path.join(SDpath, fName)
+        pathFigDir = os.path.dirname(fPath)
+        createDir(pathFigDir, 0o755)
+        np.save(fPath, insulation_score_sorted)
 
 
 fig.tight_layout()
@@ -1621,6 +1719,13 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
+# save npy
+fName = "Figure_2/Fig_2_F.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, np.concatenate((embedding, IS[:, None]), axis=1))
+
 
 #%% Fig 2 G, H revision: KNN graph and Leiden clustering 
 
@@ -1637,6 +1742,21 @@ for i, fig in enumerate([fig1, fig2]):
     createDir(pathFigDir, 0o755)
     fig.savefig(fPath+".svg")
 
+# save UMAP scatter as npy
+embedding = dictUMAP[keyDict]["embedding"]
+cluster_ID = dictUMAP[keyDict]["leiden"]["cluster_ID"]
+fName = "Figure_2/Fig_2_G.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, np.concatenate((embedding, np.array(cluster_ID)[:, None]), axis=1))
+# save data for violin plots as npy
+fName = "Figure_2/Fig_2_H_Rg_IS.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, Rg_IS_all)
+
 
 fig1, fig2, Rg_IS_all = get_leiden_cluster(dictUMAP, keyDict, 0.33, cm_map)
 # save
@@ -1647,6 +1767,21 @@ for i, fig in enumerate([fig1, fig2]):
     createDir(pathFigDir, 0o755)
     fig.savefig(fPath+".svg")
 
+# save UMAP scatter as npy
+embedding = dictUMAP[keyDict]["embedding"]
+cluster_ID = dictUMAP[keyDict]["leiden"]["cluster_ID"]
+fName = "Figure_2/Supp_Fig_2_D_top.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, np.concatenate((embedding, np.array(cluster_ID)[:, None]), axis=1))
+# save data for violin plots as npy
+fName = "Figure_2/Supp_Fig_2_D_bottom.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, Rg_IS_all)
+
 
 fig1, fig2, Rg_IS_all = get_leiden_cluster(dictUMAP, keyDict, 0.50, cm_map)
 # save
@@ -1656,6 +1791,21 @@ for i, fig in enumerate([fig1, fig2]):
     pathFigDir = os.path.dirname(fPath)
     createDir(pathFigDir, 0o755)
     fig.savefig(fPath+".svg")
+
+# save UMAP scatter as npy
+embedding = dictUMAP[keyDict]["embedding"]
+cluster_ID = dictUMAP[keyDict]["leiden"]["cluster_ID"]
+fName = "Figure_2/Supp_Fig_2_E_top.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, np.concatenate((embedding, np.array(cluster_ID)[:, None]), axis=1))
+# save data for violin plots as npy
+fName = "Figure_2/Supp_Fig_2_E_bottom.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, Rg_IS_all)
 
 
 #%% Fig Supp 2 A
@@ -1769,6 +1919,13 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
+# save npy
+fName = "Figure_2/Supp_Fig_2_C.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, np.concatenate((embedding, IS[:, None]), axis=1))
+
 
 #%% Fig Supp 2 D, E: KNN graph and Leiden clustering 
 
@@ -1828,7 +1985,13 @@ for i, (mode, state) in enumerate(product(listModes, listStates)):
     
     plots.append(plot)
     listXticks.append("{}\nn={}".format(sState, sum(sel_transc)))
-
+    
+    # save npy
+    fName = "Figure_3/Fig_3_B_" + mode + "_" + sState + ".npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, curr_dist[sel_transc])
 
 ax.set_ylabel("intra- or inter-TAD distance (µm)")
 ax.set_xlim(min(tickPos)-0.5, max(tickPos)+0.5)
@@ -1944,6 +2107,25 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".pdf")
 
+# save npy
+fName = "Figure_3/Fig_3_D_PWDmap_ON.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, pwd_KDE_ON)
+
+fName = "Figure_3/Fig_3_D_PWDmap_OFF.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, pwd_KDE_OFF)
+
+fName = "Figure_3/Supp_Fig_3_A_diff_ON_OFF.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, pwd_KDE_diff_ON_OFF)
+
 
 #%% Fig 3 D, bottom, UMAP, doc loRes 20RTs, nc11nc12, nc14 ON, nc14 OFF
 # (run section for Figure 1 H first)
@@ -1996,6 +2178,14 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
+
+# save npy
+embedding = dictUMAP[keyDict]["embedding"]
+fName = "Figure_3/Fig_3_D.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, np.concatenate((embedding, classNum_2[:, None]), axis=1))
 
 
 #%% Fig 3 E, top, population average maps of doc hiRes 17RTs, ON vs OFF
@@ -2053,6 +2243,19 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".pdf")
+
+# save npy
+fName = "Figure_3/Fig_3_E_PWDmap_ON.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, pwd_KDE_ON)
+
+fName = "Figure_3/Fig_3_E_PWDmap_OFF.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, pwd_KDE_OFF)
 
 
 #%% Fig 3 E, bottom, UMAP, doc hiRes 17RTs, nc11nc12, nc14 ON, nc14 OFF
@@ -2121,6 +2324,14 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
+
+# save npy
+embedding = dictUMAP[keyDict]["embedding"]
+fName = "Figure_3/Fig_3_E.npy"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath, np.concatenate((embedding, classNum_2[:, None]), axis=1))
 
 
 #%% Fig 3 E revision, bottom, UMAP, doc hiRes 17RTs, nc11nc12, nc14 ON, nc14 OFF; add density
@@ -2265,7 +2476,13 @@ for i, label in enumerate(listRg_labels):
     txt = "{}: mean +/- std : {} +/- {}"
     txt = txt.format(label, np.nanmean(r_gyration), np.nanstd(r_gyration))
     print(txt)
-
+    
+    # save npy
+    fName = "Figure_3/Supp_Fig_3_B_" + listTADs[selTAD] + "_" + label + ".npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, r_gyration)
 
 txt = "R_g (raw data), {}\ncutoff={}µm, minFracNotNaN={}"
 ax.set_title(txt.format(listTADs[selTAD], cutoff, minFracNotNaN), fontsize=12)
@@ -2334,6 +2551,14 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
+
+# save npy
+fName = "Figure_3/Supp_Fig_3_C"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath + "_OFF.npy", contact_prob_OFF)
+np.save(fPath + "_ON.npy", contact_prob_ON)
 
 
 #%% Fig Supp 3 D, radius of gyration doc hiRes, nc14 ON vs OFF
@@ -2404,7 +2629,13 @@ for i, label in enumerate(listRg_labels):
     plt.ylabel("Radius of gyration (µm)")
     plots += [plot]
     listXticks.append("{}\nn={}".format(label, np.sum(keep)))
-
+    
+    # save npy
+    fName = "Figure_3/Supp_Fig_3_D_" + label + ".npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, r_gyration[:, 0])
 
 txt = "R_g (hiRes raw data)\ncutoff={}µm, minFracNotNaN={}"
 ax.set_title(txt.format(cutoff, minFracNotNaN), fontsize=12)
@@ -2541,6 +2772,14 @@ fPath = os.path.join(PDFpath, figName)
 pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
+
+# save npy
+fName = "Figure_4/Fig_4_A_"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath + "IS_matrix.npy", insulation_score_sorted)
+np.save(fPath + "transcription.npy", label_SNDchan_sorted)
 
 
 # also get a bar graph of the insulation score profile
@@ -2682,6 +2921,13 @@ for i, (k, v) in enumerate(dictIS_labels):
 
     ax.plot(np.arange(nBarcodes), dictIS[k]["ens"], "-o", color=colors[i],
             linewidth=2, label=k)
+    
+    # save npy
+    fName = "Figure_4/Fig_4_B_" + k + ".npy"
+    fPath = os.path.join(SDpath, fName)
+    pathFigDir = os.path.dirname(fPath)
+    createDir(pathFigDir, 0o755)
+    np.save(fPath, np.stack((np.arange(nBarcodes)+1, y, err), axis=1))
 
 
 # highlight TAD border
@@ -2808,6 +3054,14 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
+# save npy
+fName = "Figure_4/Fig_4_C_"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath + "OFF.npy", ration_log_noNaN[label_SNDchan[keep_ratio]==0])
+np.save(fPath + "ON.npy", ration_log_noNaN[label_SNDchan[keep_ratio]==1])
+
 
 #%% Fig 4 D, inter-TAD contacts
 
@@ -2871,7 +3125,6 @@ else:
     xLim = 6
     ax.set_xticks(range(0, xLim+1, 1))
 
-
 ax.set_xlim(-0.5, xLim+0.5) # set axis limits after ticks
 
 n_ON = np.sum(label_SNDchan[keep]==1)
@@ -2889,5 +3142,11 @@ pathFigDir = os.path.dirname(fPath)
 createDir(pathFigDir, 0o755)
 fig.savefig(fPath+".svg")
 
-
+# save npy
+fName = "Figure_4/Fig_4_D_"
+fPath = os.path.join(SDpath, fName)
+pathFigDir = os.path.dirname(fPath)
+createDir(pathFigDir, 0o755)
+np.save(fPath + "OFF.npy", interTAD_sum[label_SNDchan[keep]==0])
+np.save(fPath + "ON.npy", interTAD_sum[label_SNDchan[keep]==1])
 
